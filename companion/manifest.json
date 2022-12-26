@@ -14,12 +14,13 @@
 		}
 	],
 	"runtime": {
-		"type": "node14",
-		"api": "node-ipc",
-		"apiVersion": "0.0.0",
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.1",
 		"entrypoint": "../main.js"
 	},
-	"manufacturer": "Your company",
-	"products": ["Your product"],
-	"keywords": []
+	"legacyIds":[],
+	"manufacturer": "Audinate",
+	"products": ["Dante"],
+	"keywords": ["Audinate", "Dante"]
 }
