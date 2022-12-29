@@ -1,6 +1,6 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
 import { CompanionActionDefinitions } from '@companion-module/base'
-import { SetDeviceSubscriptionsMutation, SetDeviceSubscriptionsMutationVariables } from './graphql-types'
+import { SetDeviceSubscriptionsMutation, SetDeviceSubscriptionsMutationVariables } from './graphql-codegen/graphql'
 
 export const setDeviceSubscriptionsMutation = gql`
 	mutation setDeviceSubscriptions($setDeviceSubscriptionsInput: SetDeviceSubscriptionsInput!) {
@@ -12,6 +12,7 @@ export const setDeviceSubscriptionsMutation = gql`
 
 const BLEDA_ID = '54a8aa35f20e4ea090855eca8a6cdb29'
 const SPEAKER_LEFT_ID = '001dc1fffe5000a8:0'
+const AVIOAO2_51f9e7 = '001dc1fffe51f9e7:0'
 
 function generateActions(
 	apolloClient: ApolloClient<NormalizedCacheObject>,
@@ -40,7 +41,7 @@ function generateActions(
 					mutation: setDeviceSubscriptionsMutation,
 					variables: {
 						setDeviceSubscriptionsInput: {
-							deviceId: SPEAKER_LEFT_ID,
+							deviceId: AVIOAO2_51f9e7,
 							subscriptions: [
 								{
 									rxChannelIndex: 1,
@@ -51,6 +52,11 @@ function generateActions(
 						},
 					},
 				})
+
+				if (result.errors) {
+					console.log(result.errors)
+				}
+				console.log(result)
 			},
 		},
 	}
