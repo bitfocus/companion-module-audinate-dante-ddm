@@ -1,13 +1,7 @@
 import { InstanceBase, Regex, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 
 import UpgradeScripts from './upgrades'
-import actions from './actions'
-
-type ConfigType = {
-	apihost: string
-	apikey: string
-	domainID: string
-}
+import generateActions from './actions'
 
 class ModuleInstance extends InstanceBase<ConfigType> {
 	config: ConfigType
@@ -17,8 +11,8 @@ class ModuleInstance extends InstanceBase<ConfigType> {
 
 	async init(config) {
 		this.config = config
-		// this.updateStatus(InstanceStatus.Ok)
-		this.setActionDefinitions(actions)
+		this.updateStatus(InstanceStatus.Ok)
+		this.setActionDefinitions(generateActions(this.config))
 	}
 	// When module gets deleted
 	async destroy() {
