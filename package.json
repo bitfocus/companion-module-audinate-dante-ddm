@@ -15,10 +15,17 @@
 		"url": "git+https://github.com/bitfocus/companion-module-audinate-dante.git"
 	},
 	"dependencies": {
-		"@companion-module/base": "~0.5.1"
+		"@apollo/client": "^3.7.3",
+		"@companion-module/base": "~0.5.1",
+		"cross-fetch": "^3.1.5",
+		"graphql": "^16.6.0",
+		"graphql-tag": "^2.12.6"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^0.3.3",
+		"@graphql-codegen/cli": "^2.16.1",
+		"@graphql-codegen/typescript": "^2.4.11",
+		"@graphql-codegen/typescript-operations": "^2.4.0",
 		"@typescript-eslint/eslint-plugin": "^5.47.0",
 		"rimraf": "^3.0.2",
 		"typescript": "^4.9.4"
