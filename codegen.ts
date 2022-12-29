@@ -4,9 +4,9 @@ const config: CodegenConfig = {
 	schema: 'https://james.dev.audinatescratch.com:4000',
 	documents: ['./src/**/*.ts'],
 	generates: {
-		'./src/graphql-types.ts': {
-			documents: ['./src/**/*.ts'],
-			plugins: ['typescript', 'typescript-operations'],
+		'./src/graphql-codegen/': {
+			preset: 'client',
+			plugins: [],
 		},
 	},
 }

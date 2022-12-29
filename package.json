@@ -7,7 +7,9 @@
 		"clean": "rimraf dist",
 		"format": "prettier -w .",
 		"transpile": "tsc",
-		"install": "npm run --silent transpile"
+		"install": "npm run --silent transpile",
+		"dev": "./node_modules/.bin/tsc --watch",
+		"graphql-codegen": "npx graphql-code-generator --verbose"
 	},
 	"license": "MIT",
 	"repository": {
@@ -17,6 +19,7 @@
 	"dependencies": {
 		"@apollo/client": "^3.7.3",
 		"@companion-module/base": "~0.5.1",
+		"@graphql-codegen/client-preset": "^1.2.4",
 		"cross-fetch": "^3.1.5",
 		"graphql": "^16.6.0",
 		"graphql-tag": "^2.12.6"
