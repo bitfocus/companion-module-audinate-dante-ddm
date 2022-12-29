@@ -1,6 +1,11 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
 import { CompanionActionDefinitions } from '@companion-module/base'
-import { SetDeviceSubscriptionsMutation, SetDeviceSubscriptionsMutationVariables } from './graphql-codegen/graphql'
+import {
+	DomainQuery,
+	DomainsQuery,
+	SetDeviceSubscriptionsMutation,
+	SetDeviceSubscriptionsMutationVariables,
+} from './graphql-codegen/graphql'
 
 export const setDeviceSubscriptionsMutation = gql`
 	mutation setDeviceSubscriptions($setDeviceSubscriptionsInput: SetDeviceSubscriptionsInput!) {
@@ -16,19 +21,31 @@ const AVIOAO2_51f9e7 = '001dc1fffe51f9e7:0'
 
 function generateActions(
 	apolloClient: ApolloClient<NormalizedCacheObject>,
-	domainID: string
+	domainID: string,
+	domain: DomainQuery['domain']
 ): CompanionActionDefinitions {
+	console.log(domain.devices)
 	return {
 		sample_action: {
 			name: 'Subscribe Dante Channel',
 			options: [
 				{
-					id: 'num',
-					type: 'number',
-					label: 'Test',
-					default: 5,
-					min: 0,
-					max: 100,
+					id: 'deviceRx',
+					type: 'dropdown',
+					label: 'Rx Device',
+					default: 'Select a Device',
+					choices: domain.devices?.map((d) => ({ id: d.id, label: d.name })),
+					allowCustom: true,
+					tooltip: 'The receiving device to set the subscription on',
+				},
+				{
+					id: 'deviceTx',
+					type: 'dropdown',
+					label: 'Tx Device',
+					default: 'Select a Device',
+					choices: domain.devices?.map((d) => ({ id: d.id, label: d.name })),
+					allowCustom: true,
+					tooltip: 'The transmitting device to subscribe to',
 				},
 			],
 			callback: async (event) => {
