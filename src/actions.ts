@@ -14,7 +14,7 @@ export const setDeviceSubscriptionsMutation = gql`
 	}
 `
 
-function generateActions(
+export function generateActions(
 	apolloClient: ApolloClient<NormalizedCacheObject>,
 	domain: DomainQuery['domain']
 ): CompanionActionDefinitions {
