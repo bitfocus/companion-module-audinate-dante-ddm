@@ -53,9 +53,18 @@ export function generateActions(
 				},
 			],
 			callback: async (action) => {
-				const options = action.options
-				const [rxChannelIndex, rxDeviceId] = options['rx'].toString().split('@')
-				const [txChannelName, txDeviceName] = options['tx'].toString().split('@')
+				const { rx, tx } = action.options
+
+				if (!rx || typeof rx !== 'string') {
+					return
+				}
+
+				if (!tx || typeof tx !== 'string') {
+					return
+				}
+
+				const [rxChannelIndex, rxDeviceId] = rx.toString().split('@')
+				const [txChannelName, txDeviceName] = tx.toString().split('@')
 
 				console.log(`subscribing ${rxChannelIndex} on ${rxDeviceId} to ${txChannelName}@${txDeviceName}`)
 
