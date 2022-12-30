@@ -30,20 +30,30 @@ function generateActions(
 			name: 'Subscribe Dante Channel',
 			options: [
 				{
-					id: 'deviceRx',
+					id: 'rx',
 					type: 'dropdown',
-					label: 'Rx Device',
-					default: 'Select a Device',
-					choices: domain.devices?.map((d) => ({ id: d.id, label: d.name })),
+					label: 'Rx Channel@Device',
+					default: 'Select a receive channel',
+					choices: domain.devices?.flatMap((d) => {
+						return d.rxChannels.map((rxChannel) => ({
+							id: `${rxChannel.index}@${d.id}`,
+							label: `${rxChannel.name}@${d.name}`,
+						}))
+					}),
 					allowCustom: true,
-					tooltip: 'The receiving device to set the subscription on',
+					tooltip: 'The receiving channel to set the subscription on',
 				},
 				{
-					id: 'deviceTx',
+					id: 'tx',
 					type: 'dropdown',
-					label: 'Tx Device',
-					default: 'Select a Device',
-					choices: domain.devices?.map((d) => ({ id: d.id, label: d.name })),
+					label: 'Tx Channel@Device',
+					default: 'Select a transmit channel',
+					choices: domain.devices?.flatMap((d) => {
+						return d.txChannels.map((txChannel) => ({
+							id: `${txChannel.index}@${d.id}`,
+							label: `${txChannel.name}@${d.name}`,
+						}))
+					}),
 					allowCustom: true,
 					tooltip: 'The transmitting device to subscribe to',
 				},

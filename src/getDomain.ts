@@ -16,6 +16,11 @@ export const domainQuery = gql`
 					subscribedDevice
 					subscribedChannel
 				}
+				txChannels {
+					id
+					index
+					name
+				}
 			}
 		}
 	}
