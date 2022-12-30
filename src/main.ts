@@ -31,7 +31,7 @@ class ModuleInstance extends InstanceBase<ConfigType> {
 		this.domain = await getDomain(this.apolloClient, this.config.domainID)
 		console.log(this.domain)
 
-		this.setActionDefinitions(generateActions(this.apolloClient, this.config.domainID, this.domain))
+		this.setActionDefinitions(generateActions(this.apolloClient, this.domain))
 
 		this.updateStatus(InstanceStatus.Ok)
 	}

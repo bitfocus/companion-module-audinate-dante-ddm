@@ -2,7 +2,6 @@ import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
 import { CompanionActionDefinitions } from '@companion-module/base'
 import {
 	DomainQuery,
-	DomainsQuery,
 	SetDeviceSubscriptionsMutation,
 	SetDeviceSubscriptionsMutationVariables,
 } from './graphql-codegen/graphql'
@@ -15,13 +14,8 @@ export const setDeviceSubscriptionsMutation = gql`
 	}
 `
 
-const BLEDA_ID = '54a8aa35f20e4ea090855eca8a6cdb29'
-const SPEAKER_LEFT_ID = '001dc1fffe5000a8:0'
-const AVIOAO2_51f9e7 = '001dc1fffe51f9e7:0'
-
 function generateActions(
 	apolloClient: ApolloClient<NormalizedCacheObject>,
-	domainID: string,
 	domain: DomainQuery['domain']
 ): CompanionActionDefinitions {
 	console.log(domain.devices)
@@ -50,7 +44,7 @@ function generateActions(
 					default: 'Select a transmit channel',
 					choices: domain.devices?.flatMap((d) => {
 						return d.txChannels.map((txChannel) => ({
-							id: `${txChannel.index}@${d.id}`,
+							id: `${txChannel.name}@${d.name}`,
 							label: `${txChannel.name}@${d.name}`,
 						}))
 					}),
@@ -58,8 +52,12 @@ function generateActions(
 					tooltip: 'The transmitting device to subscribe to',
 				},
 			],
-			callback: async (event) => {
-				console.log('Hello world!', event.options.num)
+			callback: async (action) => {
+				const options = action.options
+				const [rxChannelIndex, rxDeviceId] = options['rx'].toString().split('@')
+				const [txChannelName, txDeviceName] = options['tx'].toString().split('@')
+
+				console.log(`subscribing ${rxChannelIndex} on ${rxDeviceId} to ${txChannelName}@${txDeviceName}`)
 
 				const result = await apolloClient.mutate<
 					SetDeviceSubscriptionsMutation,
@@ -68,12 +66,12 @@ function generateActions(
 					mutation: setDeviceSubscriptionsMutation,
 					variables: {
 						setDeviceSubscriptionsInput: {
-							deviceId: AVIOAO2_51f9e7,
+							deviceId: rxDeviceId,
 							subscriptions: [
 								{
-									rxChannelIndex: 1,
-									subscribedDevice: 'Bleda',
-									subscribedChannel: '01',
+									rxChannelIndex: Number(rxChannelIndex),
+									subscribedDevice: txDeviceName,
+									subscribedChannel: txChannelName,
 								},
 							],
 						},
