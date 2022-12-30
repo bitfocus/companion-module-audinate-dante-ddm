@@ -12,7 +12,7 @@ import generateFeedbacks from './feedbacks'
 
 const DESK_DOMAIN_ID = 'de20a958252a42a089207aaf45f61a37'
 
-class ModuleInstance extends InstanceBase<ConfigType> {
+export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
 	domains: DomainsQuery['domains']
 	domain: DomainQuery['domain']
@@ -23,7 +23,8 @@ class ModuleInstance extends InstanceBase<ConfigType> {
 
 	async init(config) {
 		this.config = config
-		this.config.domainID = DESK_DOMAIN_ID
+
+		this.updateStatus(InstanceStatus.Connecting)
 
 		this.apolloClient = getApolloClient(this.config.apihost, this.config.apikey)
 
@@ -33,11 +34,16 @@ class ModuleInstance extends InstanceBase<ConfigType> {
 		this.domain = await getDomain(this.apolloClient, this.config.domainID)
 		console.log(this.domain)
 
-		this.setFeedbackDefinitions(generateFeedbacks(this.domain))
-		this.setActionDefinitions(generateActions(this.apolloClient, this.domain))
+		this.setFeedbackDefinitions(generateFeedbacks(this))
+		this.setActionDefinitions(generateActions(this))
 
+		setInterval(async () => {
+			this.domain = await getDomain(this.apolloClient, this.config.domainID)
+			this.checkFeedbacks('isSubscribed')
+		}, 500)
 		this.updateStatus(InstanceStatus.Ok)
 	}
+
 	// When module gets deleted
 	async destroy() {
 		this.log('debug', 'destroy')
@@ -76,4 +82,4 @@ class ModuleInstance extends InstanceBase<ConfigType> {
 	}
 }
 
-runEntrypoint(ModuleInstance, UpgradeScripts)
+runEntrypoint(AudinateDanteModule, UpgradeScripts)

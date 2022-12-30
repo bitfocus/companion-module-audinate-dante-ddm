@@ -1,7 +1,8 @@
 import { CompanionFeedbackDefinitions } from '@companion-module/base'
 import { DomainQuery } from './graphql-codegen/graphql'
+import { AudinateDanteModule } from './main'
 
-function generateFeedbacks(domain: DomainQuery['domain']): CompanionFeedbackDefinitions {
+function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefinitions {
 	return {
 		isSubscribed: {
 			name: 'isSubscribed',
@@ -17,7 +18,7 @@ function generateFeedbacks(domain: DomainQuery['domain']): CompanionFeedbackDefi
 					type: 'dropdown',
 					label: 'Rx Channel@Device',
 					default: 'Select a receive channel',
-					choices: domain.devices?.flatMap((d) => {
+					choices: self.domain.devices?.flatMap((d) => {
 						return d.rxChannels.map((rxChannel) => ({
 							id: `${rxChannel.index}@${d.id}`,
 							label: `${rxChannel.name}@${d.name}`,
@@ -31,7 +32,7 @@ function generateFeedbacks(domain: DomainQuery['domain']): CompanionFeedbackDefi
 					type: 'dropdown',
 					label: 'Tx Channel@Device',
 					default: 'Select a transmit channel',
-					choices: domain.devices?.flatMap((d) => {
+					choices: self.domain.devices?.flatMap((d) => {
 						return d.txChannels.map((txChannel) => ({
 							id: `${txChannel.name}@${d.name}`,
 							label: `${txChannel.name}@${d.name}`,
@@ -55,7 +56,7 @@ function generateFeedbacks(domain: DomainQuery['domain']): CompanionFeedbackDefi
 				const [rxChannelIndex, rxDeviceId] = rx.toString().split('@')
 				const [txChannelName, txDeviceName] = tx.toString().split('@')
 
-				const currentRxDevice = domain.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
+				const currentRxDevice = self.domain.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
 
 				const currentRxChannel = currentRxDevice.rxChannels.find(
 					(rxChannel) => rxChannel.index === Number(rxChannelIndex)

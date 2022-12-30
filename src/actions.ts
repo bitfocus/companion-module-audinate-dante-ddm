@@ -5,6 +5,7 @@ import {
 	SetDeviceSubscriptionsMutation,
 	SetDeviceSubscriptionsMutationVariables,
 } from './graphql-codegen/graphql'
+import { AudinateDanteModule } from './main'
 
 export const setDeviceSubscriptionsMutation = gql`
 	mutation setDeviceSubscriptions($setDeviceSubscriptionsInput: SetDeviceSubscriptionsInput!) {
@@ -14,11 +15,7 @@ export const setDeviceSubscriptionsMutation = gql`
 	}
 `
 
-export function generateActions(
-	apolloClient: ApolloClient<NormalizedCacheObject>,
-	domain: DomainQuery['domain']
-): CompanionActionDefinitions {
-	console.log(domain.devices)
+export function generateActions(self: AudinateDanteModule): CompanionActionDefinitions {
 	return {
 		sample_action: {
 			name: 'Subscribe Dante Channel',
@@ -28,7 +25,7 @@ export function generateActions(
 					type: 'dropdown',
 					label: 'Rx Channel@Device',
 					default: 'Select a receive channel',
-					choices: domain.devices?.flatMap((d) => {
+					choices: self.domain.devices?.flatMap((d) => {
 						return d.rxChannels.map((rxChannel) => ({
 							id: `${rxChannel.index}@${d.id}`,
 							label: `${rxChannel.name}@${d.name}`,
@@ -42,7 +39,7 @@ export function generateActions(
 					type: 'dropdown',
 					label: 'Tx Channel@Device',
 					default: 'Select a transmit channel',
-					choices: domain.devices?.flatMap((d) => {
+					choices: self.domain.devices?.flatMap((d) => {
 						return d.txChannels.map((txChannel) => ({
 							id: `${txChannel.name}@${d.name}`,
 							label: `${txChannel.name}@${d.name}`,
@@ -68,7 +65,7 @@ export function generateActions(
 
 				console.log(`subscribing ${rxChannelIndex} on ${rxDeviceId} to ${txChannelName}@${txDeviceName}`)
 
-				const result = await apolloClient.mutate<
+				const result = await self.apolloClient.mutate<
 					SetDeviceSubscriptionsMutation,
 					SetDeviceSubscriptionsMutationVariables
 				>({
