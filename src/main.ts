@@ -9,6 +9,7 @@ import { getDomains } from './getDomains'
 
 import generateActions from './actions'
 import generateFeedbacks from './feedbacks'
+import { generatePresets } from './presets'
 
 const DESK_DOMAIN_ID = 'de20a958252a42a089207aaf45f61a37'
 
@@ -36,6 +37,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 		this.setFeedbackDefinitions(generateFeedbacks(this))
 		this.setActionDefinitions(generateActions(this))
+		this.setPresetDefinitions(generatePresets(this))
 
 		setInterval(async () => {
 			this.domain = await getDomain(this.apolloClient, this.config.domainID)

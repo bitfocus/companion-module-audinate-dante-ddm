@@ -1,10 +1,6 @@
-import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
+import { gql } from '@apollo/client/core'
 import { CompanionActionDefinitions } from '@companion-module/base'
-import {
-	DomainQuery,
-	SetDeviceSubscriptionsMutation,
-	SetDeviceSubscriptionsMutationVariables,
-} from './graphql-codegen/graphql'
+import { SetDeviceSubscriptionsMutation, SetDeviceSubscriptionsMutationVariables } from './graphql-codegen/graphql'
 import { AudinateDanteModule } from './main'
 
 export const setDeviceSubscriptionsMutation = gql`
@@ -17,7 +13,7 @@ export const setDeviceSubscriptionsMutation = gql`
 
 export function generateActions(self: AudinateDanteModule): CompanionActionDefinitions {
 	return {
-		sample_action: {
+		subscribeChannel: {
 			name: 'Subscribe Dante Channel',
 			options: [
 				{
