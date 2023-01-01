@@ -1,5 +1,5 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
-import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql'
+import { DomainsQuery } from '../graphql-codegen/graphql'
 
 export const domainsQuery = gql`
 	query Domains {

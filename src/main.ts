@@ -1,4 +1,11 @@
-import { InstanceBase, Regex, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
+import {
+	InstanceBase,
+	Regex,
+	runEntrypoint,
+	InstanceStatus,
+	SomeCompanionConfigField,
+	CompanionVariableValues,
+} from '@companion-module/base'
 
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 
@@ -12,9 +19,12 @@ import UpgradeScripts from './upgrades'
 import generateActions from './actions'
 import generateFeedbacks from './feedbacks'
 import { generatePresets } from './presets'
+import { generateVariables } from './variables'
 
 export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
+	variables: CompanionVariableValues
+
 	domains: DomainsQuery['domains']
 	domain: DomainQuery['domain']
 	apolloClient: ApolloClient<NormalizedCacheObject>
@@ -25,6 +35,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 	async init(config) {
 		this.config = config
+		this.variables = {}
 
 		this.updateStatus(InstanceStatus.Connecting)
 
@@ -36,6 +47,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.domain = await getDomain(this.apolloClient, this.config.domainID)
 		console.log(this.domain)
 
+		this.setVariableDefinitions(generateVariables())
 		this.setFeedbackDefinitions(generateFeedbacks(this))
 		this.setActionDefinitions(generateActions(this))
 		this.setPresetDefinitions(generatePresets(this))

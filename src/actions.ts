@@ -86,6 +86,30 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				console.log(result)
 			},
 		},
+
+		setDestinationChannel: {
+			name: 'Set Destination',
+			options: [
+				{
+					id: 'rx',
+					type: 'dropdown',
+					label: 'Rx Channel@Device',
+					default: 'Select a receive channel',
+					choices: self.domain.devices?.flatMap((d) => {
+						return d.rxChannels.map((rxChannel) => ({
+							id: `${rxChannel.index}@${d.id}`,
+							label: `${rxChannel.name}@${d.name}`,
+						}))
+					}),
+					allowCustom: true,
+					tooltip: 'The receiving channel to set the subscription on',
+				},
+			],
+			callback: async (action) => {
+				self.variables['rx-selector-1'] = action.options['rx'].toString()
+				self.setVariableValues(self.variables)
+			},
+		},
 	}
 }
 
