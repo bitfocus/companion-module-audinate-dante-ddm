@@ -1,5 +1,5 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
-import { DomainQuery } from './graphql-codegen/graphql'
+import { DomainQuery } from '../graphql-codegen/graphql'
 
 export const domainQuery = gql`
 	query Domain($domainIDInput: ID!) {

@@ -1,23 +1,24 @@
 import { InstanceBase, Regex, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 
-import UpgradeScripts from './upgrades'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { getApolloClient } from './apolloClient'
-import { getDomain } from './getDomain'
-import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql'
-import { getDomains } from './getDomains'
 
+import { getApolloClient } from './apolloClient'
+import { getDomain } from './dante-api/getDomain'
+import { getDomains } from './dante-api/getDomains'
+
+import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql'
+
+import UpgradeScripts from './upgrades'
 import generateActions from './actions'
 import generateFeedbacks from './feedbacks'
 import { generatePresets } from './presets'
-
-const DESK_DOMAIN_ID = 'de20a958252a42a089207aaf45f61a37'
 
 export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
 	domains: DomainsQuery['domains']
 	domain: DomainQuery['domain']
 	apolloClient: ApolloClient<NormalizedCacheObject>
+
 	constructor(internal) {
 		super(internal)
 	}
