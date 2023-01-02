@@ -19,7 +19,6 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 		}))
 	})
 
-	// TODO Consider making this it's own field to avoid confusion for the user
 	const variableSelector = [1, 2, 3, 4].map((s) => ({
 		id: `rx-selector-${s}`,
 		label: `Selector #${s}`,
