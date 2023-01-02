@@ -68,7 +68,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 			callback: async (action) => {
 				const subscriptionOptions = parseSubscriptionInfoFromOptions(self, action.options)
 
-				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } = subscriptionOptions
+				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } = subscriptionOptions || {}
 
 				console.log(`subscribing ${rxChannelIndex} on ${rxDeviceId} to ${txChannelName}@${txDeviceName}`)
 
@@ -77,7 +77,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				if (result.errors) {
 					console.log(result.errors)
 				}
-				console.log(result)
+				// console.log(result)
 			},
 		},
 

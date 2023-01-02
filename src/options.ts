@@ -8,16 +8,18 @@ export interface ChannelSubscription {
 	txDeviceName: string
 }
 
+/*
+ * Gathers information about the subscription from options either using direct values or from variables (if using selectors)
+ */
 export function parseSubscriptionInfoFromOptions(
 	self: AudinateDanteModule,
 	options: CompanionOptionValues
-): ChannelSubscription {
+): ChannelSubscription | null {
 	let { rx, tx, useSelector, rxSelector } = options
-	// console.log(util.inspect(self.domain, { depth: null, colors: true }))
 
 	if (useSelector) {
 		if (!rxSelector || typeof rxSelector !== 'string') {
-			return
+			return null
 		}
 		rx = self.getVariableValue(rxSelector)
 	}
