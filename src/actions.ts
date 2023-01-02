@@ -1,15 +1,7 @@
-import { gql } from '@apollo/client/core'
 import { CompanionActionDefinitions } from '@companion-module/base'
-import { SetDeviceSubscriptionsMutation, SetDeviceSubscriptionsMutationVariables } from './graphql-codegen/graphql'
+import { setDeviceSubscriptions } from './dante-api/setDeviceSubscriptions'
 import { AudinateDanteModule } from './main'
-
-export const setDeviceSubscriptionsMutation = gql`
-	mutation setDeviceSubscriptions($setDeviceSubscriptionsInput: SetDeviceSubscriptionsInput!) {
-		setDeviceSubscriptions(input: $setDeviceSubscriptionsInput) {
-			ok
-		}
-	}
-`
+import { parseSubscriptionInfoFromOptions } from './options'
 
 export function generateActions(self: AudinateDanteModule): CompanionActionDefinitions {
 	const availableRxChannels = self.domain.devices?.flatMap((d) => {
@@ -74,46 +66,13 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				},
 			],
 			callback: async (action) => {
-				let { rx, tx, useSelector, rxSelector } = action.options
+				const subscriptionOptions = parseSubscriptionInfoFromOptions(self, action.options)
 
-				if (useSelector) {
-					if (!rxSelector || typeof rxSelector !== 'string') {
-						return
-					}
-					rx = self.getVariableValue(rxSelector)
-				}
-
-				if (!rx || typeof rx !== 'string') {
-					return
-				}
-
-				if (!tx || typeof tx !== 'string') {
-					return
-				}
-
-				const [rxChannelIndex, rxDeviceId] = rx.toString().split('@')
-				const [txChannelName, txDeviceName] = tx.toString().split('@')
+				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } = subscriptionOptions
 
 				console.log(`subscribing ${rxChannelIndex} on ${rxDeviceId} to ${txChannelName}@${txDeviceName}`)
 
-				const result = await self.apolloClient.mutate<
-					SetDeviceSubscriptionsMutation,
-					SetDeviceSubscriptionsMutationVariables
-				>({
-					mutation: setDeviceSubscriptionsMutation,
-					variables: {
-						setDeviceSubscriptionsInput: {
-							deviceId: rxDeviceId,
-							subscriptions: [
-								{
-									rxChannelIndex: Number(rxChannelIndex),
-									subscribedDevice: txDeviceName,
-									subscribedChannel: txChannelName,
-								},
-							],
-						},
-					},
-				})
+				const result = await setDeviceSubscriptions(self, subscriptionOptions)
 
 				if (result.errors) {
 					console.log(result.errors)
