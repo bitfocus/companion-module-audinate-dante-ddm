@@ -1,4 +1,5 @@
 import { CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField } from '@companion-module/base'
+import { RxChannelSummary } from './graphql-codegen/graphql'
 import { AudinateDanteModule } from './main'
 import { parseSubscriptionInfoFromOptions } from './options'
 
@@ -7,6 +8,7 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 		id: `rx-selector-${s}`,
 		label: `Selector #${s}`,
 	}))
+
 	const options: SomeCompanionFeedbackInputField[] = [
 		{
 			id: 'rx',
@@ -62,6 +64,39 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 	return {
 		isSubscribed: {
 			name: 'isSubscribed',
+			description: 'is the specified channel subscription already in place (may not be healthy)',
+			type: 'boolean',
+			defaultStyle: {
+				// RBG hex value converted to decimal
+				bgcolor: parseInt('BBBB00', 16),
+			},
+			options,
+			callback: (feedback) => {
+				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } =
+					parseSubscriptionInfoFromOptions(self, feedback.options) || {}
+
+				const currentRxDevice = self.domain?.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
+
+				const currentRxChannel = currentRxDevice?.rxChannels.find(
+					(rxChannel) => rxChannel.index === Number(rxChannelIndex)
+				)
+
+				if (!currentRxDevice || !currentRxChannel) {
+					return false
+				}
+
+				if (
+					currentRxChannel?.subscribedDevice === txDeviceName &&
+					currentRxChannel?.subscribedChannel === txChannelName
+				) {
+					return true
+				}
+
+				return false
+			},
+		},
+		isSubscribedAndHealthy: {
+			name: 'isSubscribedAndHealthy',
 			description: 'is the specified channel subscription already in place and healthy',
 			type: 'boolean',
 			defaultStyle: {
@@ -79,9 +114,14 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 					(rxChannel) => rxChannel.index === Number(rxChannelIndex)
 				)
 
+				if (!currentRxDevice || !currentRxChannel) {
+					return false
+				}
+
 				if (
 					currentRxChannel?.subscribedDevice === txDeviceName &&
-					currentRxChannel?.subscribedChannel === txChannelName
+					currentRxChannel?.subscribedChannel === txChannelName &&
+					currentRxChannel?.summary == RxChannelSummary.Connected
 				) {
 					return true
 				}

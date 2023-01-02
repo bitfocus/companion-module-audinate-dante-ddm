@@ -15,6 +15,8 @@ export const domainQuery = gql`
 					name
 					subscribedDevice
 					subscribedChannel
+					status
+					summary
 				}
 				txChannels {
 					id

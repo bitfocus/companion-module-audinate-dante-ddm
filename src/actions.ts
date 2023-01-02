@@ -111,6 +111,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				const { rx, rxSelector } = action.options
 				self.variables[rxSelector.toString()] = rx.toString()
 				self.setVariableValues(self.variables)
+				self.checkFeedbacks()
 			},
 		},
 	}
