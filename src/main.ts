@@ -37,15 +37,22 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.config = config
 		this.variables = {}
 
+		if (!this.config.apihost || !this.config.apikey || !this.config.domainID) {
+			this.updateStatus(InstanceStatus.BadConfig)
+			return
+		}
+
+		this.updateStatus(InstanceStatus.Disconnected)
+
 		this.updateStatus(InstanceStatus.Connecting)
 
-		this.apolloClient = getApolloClient(this.config.apihost, this.config.apikey)
+		this.apolloClient = getApolloClient(this, this.config.apihost, this.config.apikey)
 
 		this.domains = await getDomains(this.apolloClient)
-		console.log(this.domains)
+		// console.log(this.domains)
 
 		this.domain = await getDomain(this.apolloClient, this.config.domainID)
-		console.log(this.domain)
+		// console.log(this.domain)
 
 		this.setVariableDefinitions(generateVariables())
 		this.setFeedbackDefinitions(generateFeedbacks(this))
@@ -65,7 +72,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	}
 
 	async configUpdated(config) {
-		this.config = config
+		this.init(this.config)
 	}
 
 	// Return config fields for web config
@@ -76,6 +83,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				id: 'apihost',
 				type: 'textinput',
 				label: 'API Host URL',
+				default: 'https://<instance>.beta.dante.cloud:4000/graphql',
 				width: 8,
 				regex: RegexURL,
 			},

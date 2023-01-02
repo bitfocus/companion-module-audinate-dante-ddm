@@ -2,10 +2,12 @@ import { ApolloClient, DefaultOptions, from, gql, HttpLink, InMemoryCache } from
 
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
+import { InstanceStatus } from '@companion-module/base'
 
 import fetch from 'cross-fetch'
+import { AudinateDanteModule } from './main'
 
-export function getApolloClient(uri: string, token?: string) {
+export function getApolloClient(self: AudinateDanteModule, uri: string, token?: string) {
 	const defaultOptions: DefaultOptions = {
 		watchQuery: {
 			fetchPolicy: 'no-cache',
@@ -41,6 +43,7 @@ export function getApolloClient(uri: string, token?: string) {
 			})
 
 		if (networkError) {
+			self.updateStatus(InstanceStatus.ConnectionFailure)
 			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
 		}
 	})

@@ -163,7 +163,7 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 			],
 			callback: (feedback) => {
 				const { rx, rxSelector } = feedback.options
-				self.variables[rxSelector.toString()] = rx.toString()
+				self.variables[rxSelector?.toString()] = rx?.toString()
 				const currentSelectorValue = self.getVariableValue(rxSelector.toString())
 				if(currentSelectorValue === rx) {
 					return true
