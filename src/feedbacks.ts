@@ -129,6 +129,48 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				return false
 			},
 		},
+		isSelected: {
+			name: 'isSelected',
+			description: 'is this selector already selected',
+			type: 'boolean',
+			defaultStyle: {
+				// RBG hex value converted to decimal
+				bgcolor: parseInt('555555', 16),
+			},
+			options: [
+				{
+					id: 'rxSelector',
+					type: 'dropdown',
+					label: 'Rx Selector',
+					default: 'rx-selector-1',
+					choices: variableSelector,
+					tooltip: 'The selector to set',
+				},
+				{
+					id: 'rx',
+					type: 'dropdown',
+					label: 'Rx Channel@Device',
+					default: 'Select a receive channel',
+					choices: self.domain.devices?.flatMap((d) => {
+						return d.rxChannels.map((rxChannel) => ({
+							id: `${rxChannel.index}@${d.id}`,
+							label: `${rxChannel.name}@${d.name}`,
+						}))
+					}),
+					allowCustom: true,
+					tooltip: 'The receiving channel to set the subscription on',
+				},
+			],
+			callback: (feedback) => {
+				const { rx, rxSelector } = feedback.options
+				self.variables[rxSelector.toString()] = rx.toString()
+				const currentSelectorValue = self.getVariableValue(rxSelector.toString())
+				if(currentSelectorValue === rx) {
+					return true
+				}
+				return false
+			},
+		},
 	}
 }
 
