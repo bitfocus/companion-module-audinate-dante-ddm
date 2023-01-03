@@ -35,6 +35,11 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 	async init(config) {
 		this.config = config
+
+		delete this.domains
+		delete this.domain
+		delete this.apolloClient
+
 		this.variables = {}
 
 		if (!this.config.apihost || !this.config.apikey || !this.config.domainID) {
@@ -42,27 +47,47 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			return
 		}
 
-		this.updateStatus(InstanceStatus.Disconnected)
-
-		this.updateStatus(InstanceStatus.Connecting)
-
+		console.log(`Creating ApolloClient`)
 		this.apolloClient = getApolloClient(this, this.config.apihost, this.config.apikey)
 
-		this.domains = await getDomains(this.apolloClient)
-		// console.log(this.domains)
+		console.log(`Getting list of available Domains`)
+		try {
+			this.domains = await getDomains(this.apolloClient)
+		} catch (e) {
+			this.updateStatus(InstanceStatus.Disconnected, e.toString())
+			return
+		}
 
-		this.domain = await getDomain(this.apolloClient, this.config.domainID)
-		// console.log(this.domain)
+		if (!this.domains) {
+			this.updateStatus(InstanceStatus.Connecting, 'No domains discovered')
+			return
+		}
 
+		console.log(`Getting specified Domain (${this.config.domainID})`)
+		try {
+			this.domain = await getDomain(this.apolloClient, this.config.domainID)
+		} catch (e) {
+			this.updateStatus(InstanceStatus.Disconnected, e.toString())
+			return
+		}
+
+		if (!this.domain) {
+			this.updateStatus(InstanceStatus.Connecting, 'Domain not found')
+			return
+		}
+
+		console.log(`Setting up companion components...`)
 		this.setVariableDefinitions(generateVariables())
 		this.setFeedbackDefinitions(generateFeedbacks(this))
 		this.setActionDefinitions(generateActions(this))
 		this.setPresetDefinitions(generatePresets(this))
 
+		console.log(`Setting up domain update polling...`)
 		setInterval(async () => {
 			this.domain = await getDomain(this.apolloClient, this.config.domainID)
 			this.checkFeedbacks('isSubscribed')
 		}, 500)
+
 		this.updateStatus(InstanceStatus.Ok)
 	}
 
@@ -72,7 +97,9 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	}
 
 	async configUpdated(config) {
-		this.init(this.config)
+		console.log(`Configuration updated`)
+		console.log(config)
+		await this.init(config)
 	}
 
 	// Return config fields for web config

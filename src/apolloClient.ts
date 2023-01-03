@@ -11,14 +11,14 @@ export function getApolloClient(self: AudinateDanteModule, uri: string, token?: 
 	const defaultOptions: DefaultOptions = {
 		watchQuery: {
 			fetchPolicy: 'no-cache',
-			errorPolicy: 'all',
+			errorPolicy: 'none',
 		},
 		query: {
 			fetchPolicy: 'no-cache',
-			errorPolicy: 'all',
+			errorPolicy: 'none',
 		},
 		mutate: {
-			errorPolicy: 'all',
+			errorPolicy: 'none',
 		},
 	}
 
@@ -35,15 +35,12 @@ export function getApolloClient(self: AudinateDanteModule, uri: string, token?: 
 		if (graphQLErrors)
 			graphQLErrors.forEach((error) => {
 				if (error.extensions.code === 'INTERNAL_SERVER_ERROR') {
-					console.error(JSON.stringify(error, undefined, 2))
-					// console.log(
-					//   `[GraphQL error]: Message: ${error.message}`,
-					// )
+					console.log(`[GraphQL error]: Message: ${error.message}`)
 				}
 			})
 
 		if (networkError) {
-			self.updateStatus(InstanceStatus.ConnectionFailure)
+			self.updateStatus(InstanceStatus.ConnectionFailure, `Network error`)
 			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
 		}
 	})

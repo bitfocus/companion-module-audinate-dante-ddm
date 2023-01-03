@@ -38,6 +38,7 @@ export async function getDomain(
 	})
 	if (result.error) {
 		console.log(result.error)
+		return
 	}
 	return result.data.domain
 }

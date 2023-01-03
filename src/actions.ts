@@ -77,7 +77,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				if (result.errors) {
 					console.log(result.errors)
 				}
-				// console.log(result)
+				console.log(result)
 			},
 		},
 

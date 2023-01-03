@@ -16,6 +16,7 @@ export async function getDomains(apolloClient: ApolloClient<NormalizedCacheObjec
 	})
 	if (result.error) {
 		console.log(result.error)
+		return
 	}
 	return result.data.domains
 }
