@@ -85,7 +85,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		console.log(`Setting up domain update polling...`)
 		setInterval(async () => {
 			this.domain = await getDomain(this.apolloClient, this.config.domainID)
-			this.checkFeedbacks('isSubscribed')
+			this.checkFeedbacks()
 		}, 500)
 
 		this.updateStatus(InstanceStatus.Ok)
