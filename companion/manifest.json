@@ -5,12 +5,12 @@
 	"description": "Controls Dante subscriptions",
 	"version": "0.0.1",
 	"license": "MIT",
-	"repository": "git+https://github.com/bitfocus/companion-module-your-module-name.git",
-	"bugs": "https://github.com/bitfocus/companion-module-your-module-name/issues",
+	"repository": "git+https://github.com/bitfocus/companion-module-audinate-dante.git",
+	"bugs": "https://github.com/bitfocus/companion-module-audinate-dante/issues",
 	"maintainers": [
 		{
-			"name": "Your name",
-			"email": "Your email"
+			"name": "James Abbottsmith",
+			"email": "james.abbottsmith@audinate.com"
 		}
 	],
 	"runtime": {
@@ -22,5 +22,5 @@
 	"legacyIds":[],
 	"manufacturer": "Audinate",
 	"products": ["Dante"],
-	"keywords": ["Audinate", "Dante"]
+	"keywords": ["Audinate", "Dante", "subscription", "subscribe"]
 }
