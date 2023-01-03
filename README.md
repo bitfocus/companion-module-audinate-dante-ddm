@@ -1,2 +1,3 @@
-# companion-module-[replace with module name]
+# companion-module-audinate-dante
+
 See [HELP.md](./HELP.md) and [LICENSE](./LICENSE)
