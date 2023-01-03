@@ -110,6 +110,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 			callback: async (action) => {
 				const { rx, rxSelector } = action.options
 				self.variables[rxSelector.toString()] = rx.toString()
+				console.log(`set variable ${rxSelector.toString()} to ${rx.toString()}`)
 				self.setVariableValues(self.variables)
 				self.checkFeedbacks()
 			},
