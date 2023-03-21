@@ -1,0 +1,26 @@
+{
+	"id": "audinate-dante",
+	"name": "Audinate Dante",
+	"shortname": "audinate-dante",
+	"description": "Controls Dante subscriptions",
+	"version": "0.0.1",
+	"license": "MIT",
+	"repository": "git+https://github.com/bitfocus/companion-module-audinate-dante.git",
+	"bugs": "https://github.com/bitfocus/companion-module-audinate-dante/issues",
+	"maintainers": [
+		{
+			"name": "James Abbottsmith",
+			"email": "james.abbottsmith@audinate.com"
+		}
+	],
+	"runtime": {
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.1",
+		"entrypoint": "../dist/main.js"
+	},
+	"legacyIds":[],
+	"manufacturer": "Audinate",
+	"products": ["Dante"],
+	"keywords": ["Audinate", "Dante", "subscription", "subscribe"]
+}
