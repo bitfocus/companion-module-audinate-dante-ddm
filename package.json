@@ -1,5 +1,5 @@
 {
-	"name": "companion-module-audinate-dante",
+	"name": "companion-module-audinate-dante-ddm",
 	"version": "0.1.0",
 	"main": "main.js",
 	"scripts": {
@@ -14,7 +14,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bitfocus/companion-module-audinate-dante.git"
+		"url": "git+https://github.com/bitfocus/companion-module-audinate-dante-ddm.git"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.7.3",
