@@ -1,12 +1,12 @@
 {
-	"id": "audinate-dante",
+	"id": "audinate-dante-ddm",
 	"name": "Audinate Dante",
-	"shortname": "audinate-dante",
+	"shortname": "audinate-dante-ddm",
 	"description": "Controls Dante subscriptions",
 	"version": "0.0.1",
 	"license": "MIT",
-	"repository": "git+https://github.com/bitfocus/companion-module-audinate-dante.git",
-	"bugs": "https://github.com/bitfocus/companion-module-audinate-dante/issues",
+	"repository": "git+https://github.com/bitfocus/companion-module-audinate-dante-ddm.git",
+	"bugs": "https://github.com/bitfocus/companion-module-audinate-dante-ddm/issues",
 	"maintainers": [
 		{
 			"name": "James Abbottsmith",
@@ -22,5 +22,5 @@
 	"legacyIds":[],
 	"manufacturer": "Audinate",
 	"products": ["Dante"],
-	"keywords": ["Audinate", "Dante", "subscription", "subscribe"]
+	"keywords": ["Audinate", "Dante", "subscription", "subscribe", "DDM"]
 }
