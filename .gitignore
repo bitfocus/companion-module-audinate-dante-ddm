@@ -1,3 +1,7 @@
+# Packaging
+/pkg
+/pkg.tgz
+
 # Logs
 logs
 *.log
