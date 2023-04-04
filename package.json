@@ -1,15 +1,20 @@
 {
 	"name": "companion-module-audinate-dante-ddm",
-	"version": "0.2.0",
-	"main": "main.js",
+	"version": "1.0.0",
+	"main": "dist/main.js",
 	"scripts": {
-		"build": "npm-run-all clean transpile",
 		"clean": "rimraf dist",
 		"format": "prettier -w .",
 		"transpile": "tsc",
 		"install": "npm run --silent transpile",
-		"dev": "./node_modules/.bin/tsc --watch",
-		"graphql-codegen": "npx graphql-code-generator --verbose"
+		"graphql-codegen": "npx graphql-code-generator --verbose",
+		"prepare": "husky install",
+		"dev": "yarn build:watch",
+		"build": "rimraf dist && yarn build:main",
+		"build:main": "tsc -p tsconfig.build.json",
+		"build:watch": "tsc -p tsconfig.build.json --watch",
+		"lint": "eslint ./src --ext .ts",
+		"postinstall": "yarn build"
 	},
 	"license": "MIT",
 	"repository": {
@@ -18,20 +23,25 @@
 	},
 	"dependencies": {
 		"@apollo/client": "^3.7.3",
-		"@companion-module/base": "~0.5.1",
+		"@babel/core": "^7.0.0",
+		"@companion-module/base": "~1.4.0",
 		"@graphql-codegen/client-preset": "^1.2.4",
+		"@types/node": "^18.15.11",
+		"@typescript-eslint/parser": "^5.0.0",
 		"cross-fetch": "^3.1.5",
+		"eslint": "^8.37.0",
 		"graphql": "^16.6.0",
 		"graphql-tag": "^2.12.6"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^0.3.3",
+		"@companion-module/tools": "^1.2.0",
 		"@graphql-codegen/cli": "^2.16.1",
 		"@graphql-codegen/typescript": "^2.4.11",
 		"@graphql-codegen/typescript-operations": "^2.4.0",
 		"@typescript-eslint/eslint-plugin": "^5.47.0",
 		"rimraf": "^3.0.2",
-		"typescript": "^4.9.4"
+		"typescript": "^4.9.4",
+		"husky": "^7.0.4"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json"
 }
