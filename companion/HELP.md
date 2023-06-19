@@ -17,7 +17,7 @@ and another set of buttons which set the subscription value (i.e., the source)
 
 ## Connection
 
-This module requires access to the Dante Managed API, which is currently available through a Dante Cloud Beta account or the upcoming DDM 1.5 release
+This module requires access to the Dante Managed API, which is currently available through a Dante Cloud Beta account or Dante Domain Manager (from version 1.5 onwards)
 
 Each module is scoped to a particular Dante domain.
 If you have multiple domains you want to manage, just set up a new connection for each domain.

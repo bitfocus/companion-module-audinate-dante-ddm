@@ -1,19 +1,21 @@
-# companion-module-audinate-dante
+# companion-module-audinate-dante-ddm
 
-See [HELP.md](./companion/HELP.md) for user documentation.
+This module enables the ability to set Dante subscriptions using a managed Dante domain. It uses the GraphQL API provided by Dante Domain Manager.
 
-See [LICENSE]
+## User Documentation
+
+See [HELP.md](./companion/HELP.md) for user documentation which is also what is displayed to the user when they click on the help icon in the UI.
 
 ## Development
 
 During development, you'll need to inform Companion where to look for dev modules (like this one).
 
-Follow the guide here
+Alternatively, if you are running Companion itself directly from its source code, create a symbolic link in `companion/module-local-dev` to this directory.
+
+In general, follow the guide here
 <https://github.com/bitfocus/companion-module-base/wiki>.
 
 This module was developed for Companion 3.0 beta. It may work with Companion 2.0 as well, but this is untested.
-
-Alternatively, if you are running Companion itself directly from its source code, create a symbolic link in `module-local-dev`
 
 ### GraphQL CodeGen
 
@@ -21,10 +23,10 @@ GraphQL CodeGen generates TypeScript types based on the GraphQL schema and opera
 
 `npm run graphql-codegen` needs to run during development upon the first run, and whenever the schema changes
 
-## Release
-
-We have not worked out the release process yet; for example, do we need to pre-transpile the TypeScript? TBD
-
 ## Maintainers
 
-* James Abbottsmith <james.abbottsmith@audinate.com>
+* James Abbottsmith <james.abbottsmith@gmail.com>
+
+## License
+
+See [LICENSE](./LICENSE)
