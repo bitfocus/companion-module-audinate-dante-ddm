@@ -28,7 +28,7 @@
 		"@graphql-codegen/client-preset": "^4.2.6",
 		"@types/node": "^18.19.33",
 		"@typescript-eslint/parser": "^7.10.0",
-		"cross-fetch": "^3.1.8",
+		"cross-fetch": "^4.0.0",
 		"eslint": "^8.57.0",
 		"graphql": "^16.8.1",
 		"graphql-tag": "^2.12.6"
@@ -39,9 +39,9 @@
 		"@graphql-codegen/typescript": "^4.0.7",
 		"@graphql-codegen/typescript-operations": "^4.2.1",
 		"@typescript-eslint/eslint-plugin": "^7.10.0",
-		"rimraf": "^3.0.2",
-		"typescript": "^4.9.5",
-		"husky": "^7.0.4"
+		"rimraf": "^5.0.7",
+		"typescript": "^5.4.5",
+		"husky": "^9.0.11"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json"
 }
