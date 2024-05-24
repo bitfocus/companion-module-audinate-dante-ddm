@@ -10,7 +10,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
  * 3. It does not support dead code elimination, so it will add unused operations.
  *
- * Therefore it is highly recommended to use the babel-plugin for production.
+ * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
     "\n\tquery Domain($domainIDInput: ID!) {\n\t\tdomain(id: $domainIDInput) {\n\t\t\tid\n\t\t\tname\n\t\t\tdevices {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\trxChannels {\n\t\t\t\t\tid\n\t\t\t\t\tindex\n\t\t\t\t\tname\n\t\t\t\t\tsubscribedDevice\n\t\t\t\t\tsubscribedChannel\n\t\t\t\t\tstatus\n\t\t\t\t\tsummary\n\t\t\t\t}\n\t\t\t\ttxChannels {\n\t\t\t\t\tid\n\t\t\t\t\tindex\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.DomainDocument,
@@ -24,7 +24,7 @@ const documents = {
  *
  * @example
  * ```ts
- * const query = gql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
+ * const query = graphql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
  * ```
  *
  * The query argument is unknown!

@@ -5,26 +5,28 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  DateTime: any;
+  DateTime: { input: any; output: any; }
 };
 
 export type Capabilities = {
   __typename?: 'Capabilities';
-  CAN_UNICAST_CLOCKING?: Maybe<Scalars['Boolean']>;
-  CAN_WRITE_EXT_WORD_CLOCK?: Maybe<Scalars['Boolean']>;
-  CAN_WRITE_PREFERRED_MASTER?: Maybe<Scalars['Boolean']>;
-  CAN_WRITE_SLAVE_ONLY?: Maybe<Scalars['Boolean']>;
-  CAN_WRITE_UNICAST_DELAY_REQUESTS?: Maybe<Scalars['Boolean']>;
-  id: Scalars['ID'];
-  mediaTypes?: Maybe<Scalars['Int']>;
+  CAN_UNICAST_CLOCKING?: Maybe<Scalars['Boolean']['output']>;
+  CAN_WRITE_EXT_WORD_CLOCK?: Maybe<Scalars['Boolean']['output']>;
+  CAN_WRITE_PREFERRED_MASTER?: Maybe<Scalars['Boolean']['output']>;
+  CAN_WRITE_SLAVE_ONLY?: Maybe<Scalars['Boolean']['output']>;
+  CAN_WRITE_UNICAST_DELAY_REQUESTS?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  mediaTypes?: Maybe<Scalars['Int']['output']>;
 };
 
 export enum ChannelMediaType {
@@ -38,12 +40,12 @@ export enum ChannelMediaType {
 
 export type ClockPreferences = {
   __typename?: 'ClockPreferences';
-  externalWordClock?: Maybe<Scalars['Boolean']>;
-  id: Scalars['ID'];
-  leader?: Maybe<Scalars['Boolean']>;
+  externalWordClock?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  leader?: Maybe<Scalars['Boolean']['output']>;
   overrides?: Maybe<DeviceOverrides>;
-  unicastClocking?: Maybe<Scalars['Boolean']>;
-  v1UnicastDelayRequests?: Maybe<Scalars['Boolean']>;
+  unicastClocking?: Maybe<Scalars['Boolean']['output']>;
+  v1UnicastDelayRequests?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export enum ClockSyncServo {
@@ -61,15 +63,15 @@ export enum ClockSyncServo {
 
 export type ClockingState = {
   __typename?: 'ClockingState';
-  followerWithoutLeader?: Maybe<Scalars['Boolean']>;
-  frequencyOffset?: Maybe<Scalars['String']>;
-  grandLeader?: Maybe<Scalars['Boolean']>;
-  id: Scalars['ID'];
+  followerWithoutLeader?: Maybe<Scalars['Boolean']['output']>;
+  frequencyOffset?: Maybe<Scalars['String']['output']>;
+  grandLeader?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
   locked?: Maybe<ClockSyncServo>;
-  multicastLeader?: Maybe<Scalars['Boolean']>;
-  muteStatus?: Maybe<Scalars['String']>;
-  unicastFollower?: Maybe<Scalars['Boolean']>;
-  unicastLeader?: Maybe<Scalars['Boolean']>;
+  multicastLeader?: Maybe<Scalars['Boolean']['output']>;
+  muteStatus?: Maybe<Scalars['String']['output']>;
+  unicastFollower?: Maybe<Scalars['Boolean']['output']>;
+  unicastLeader?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export enum ConnectionState {
@@ -83,19 +85,19 @@ export type Device = {
   capabilities?: Maybe<Capabilities>;
   clockPreferences?: Maybe<ClockPreferences>;
   clockingState?: Maybe<ClockingState>;
-  comments?: Maybe<Scalars['String']>;
+  comments?: Maybe<Scalars['String']['output']>;
   connection?: Maybe<DeviceConnection>;
-  description?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']['output']>;
   domain?: Maybe<Domain>;
-  domainId?: Maybe<Scalars['ID']>;
+  domainId?: Maybe<Scalars['ID']['output']>;
   enrolmentState?: Maybe<EnrolmentState>;
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   identity?: Maybe<Identity>;
   interfaces?: Maybe<Array<Maybe<Interface>>>;
-  location?: Maybe<Scalars['String']>;
+  location?: Maybe<Scalars['String']['output']>;
   manufacturer?: Maybe<Manufacturer>;
-  name: Scalars['String'];
-  picture?: Maybe<Scalars['String']>;
+  name: Scalars['String']['output'];
+  picture?: Maybe<Scalars['String']['output']>;
   platform?: Maybe<Platform>;
   product?: Maybe<Product>;
   rxChannels?: Maybe<Array<Maybe<RxChannel>>>;
@@ -103,40 +105,40 @@ export type Device = {
 };
 
 export type DeviceClockingUnicastSetInput = {
-  deviceId: Scalars['ID'];
-  enabled: Scalars['Boolean'];
+  deviceId: Scalars['ID']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type DeviceClockingUnicastSetPayload = MutationResponse & {
   __typename?: 'DeviceClockingUnicastSetPayload';
-  ok: Scalars['Boolean'];
+  ok: Scalars['Boolean']['output'];
 };
 
 export type DeviceConnection = {
   __typename?: 'DeviceConnection';
-  id: Scalars['ID'];
-  lastChanged?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID']['output'];
+  lastChanged?: Maybe<Scalars['DateTime']['output']>;
   state?: Maybe<ConnectionState>;
 };
 
 export type DeviceOverrides = {
   __typename?: 'DeviceOverrides';
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   ptp?: Maybe<DevicePtp>;
   rtp?: Maybe<DeviceRtp>;
 };
 
 export type DevicePtp = {
   __typename?: 'DevicePtp';
-  id: Scalars['ID'];
-  v2Priority1?: Maybe<Scalars['Int']>;
-  v2Priority2?: Maybe<Scalars['Int']>;
+  id: Scalars['ID']['output'];
+  v2Priority1?: Maybe<Scalars['Int']['output']>;
+  v2Priority2?: Maybe<Scalars['Int']['output']>;
 };
 
 export type DeviceRtp = {
   __typename?: 'DeviceRtp';
-  id: Scalars['ID'];
-  prefixV4?: Maybe<Scalars['Int']>;
+  id: Scalars['ID']['output'];
+  prefixV4?: Maybe<Scalars['Int']['output']>;
 };
 
 export type DeviceRxChannelsSubscriptionInput = {
@@ -152,7 +154,7 @@ export type DeviceRxChannelsSubscriptionInput = {
    * This index is unique on the given device and is not media specific.
    * The index to use should be determined by first querying the channels on the device, finding the channel you want to modify, and then use that index.
    */
-  rxChannelIndex: Scalars['Int'];
+  rxChannelIndex: Scalars['Int']['input'];
   /**
    * The channel name on the device which is transmitting the media
    *
@@ -168,7 +170,7 @@ export type DeviceRxChannelsSubscriptionInput = {
    *
    * 💡 An empty subscribedDevice and subscribedChannel will unsubscribe the channel
    */
-  subscribedChannel: Scalars['String'];
+  subscribedChannel: Scalars['String']['input'];
   /**
    * The name of the device which is transmitting the media that you wish to subscribe to
    *
@@ -180,7 +182,7 @@ export type DeviceRxChannelsSubscriptionInput = {
    *
    * 💡 An empty subscribedDevice and subscribedChannel will unsubscribe the channel
    */
-  subscribedDevice: Scalars['String'];
+  subscribedDevice: Scalars['String']['input'];
 };
 
 export type DeviceRxChannelsSubscriptionSetInput = {
@@ -193,7 +195,7 @@ export type DeviceRxChannelsSubscriptionSetInput = {
    *
    * If this value is set to true, then additional checks (such as checking the media types of each channel match) will not be performed.
    */
-  allowSubscriptionToNonExistentChannel?: InputMaybe<Scalars['Boolean']>;
+  allowSubscriptionToNonExistentChannel?: InputMaybe<Scalars['Boolean']['input']>;
   /**
    * Allows setting a subscription to a device name when that device does not currently exist, typically because it is offline.
    *
@@ -203,7 +205,7 @@ export type DeviceRxChannelsSubscriptionSetInput = {
    *
    * If set, 'allowSubscriptionToNonExistentChannel' must also be set since the channel name cannot resolve when the device is offline
    */
-  allowSubscriptionToNonExistentDevice?: InputMaybe<Scalars['Boolean']>;
+  allowSubscriptionToNonExistentDevice?: InputMaybe<Scalars['Boolean']['input']>;
   /**
    * The ID of the device which will receive the subscription
    *
@@ -211,13 +213,13 @@ export type DeviceRxChannelsSubscriptionSetInput = {
    *   "0ae3b2edf1374c0c836c96649e879c2f" (for software devices like DVS)
    *   "001dc1fffe501c25:0" (for hardware devices like AVIO)
    */
-  deviceId: Scalars['ID'];
+  deviceId: Scalars['ID']['input'];
   subscriptions: Array<DeviceRxChannelsSubscriptionInput>;
 };
 
 export type DeviceRxChannelsSubscriptionSetPayload = MutationResponse & {
   __typename?: 'DeviceRxChannelsSubscriptionSetPayload';
-  ok: Scalars['Boolean'];
+  ok: Scalars['Boolean']['output'];
 };
 
 export type DevicesEnrollInput = {
@@ -231,14 +233,14 @@ export type DevicesEnrollInput = {
    *   - Subscriptions
    * Note: Clear Configuration is not supported for legacy devices.
    */
-  clearConfig?: InputMaybe<Scalars['Boolean']>;
-  deviceIds: Array<Scalars['ID']>;
-  domainId: Scalars['ID'];
+  clearConfig?: InputMaybe<Scalars['Boolean']['input']>;
+  deviceIds: Array<Scalars['ID']['input']>;
+  domainId: Scalars['ID']['input'];
 };
 
 export type DevicesEnrollPayload = MutationResponse & {
   __typename?: 'DevicesEnrollPayload';
-  ok: Scalars['Boolean'];
+  ok: Scalars['Boolean']['output'];
 };
 
 export type DevicesUnenrollInput = {
@@ -252,29 +254,29 @@ export type DevicesUnenrollInput = {
    *   - Subscriptions
    * Note: Clear Configuration is not supported for legacy devices.
    */
-  clearConfig?: InputMaybe<Scalars['Boolean']>;
-  deviceIds: Array<Scalars['ID']>;
+  clearConfig?: InputMaybe<Scalars['Boolean']['input']>;
+  deviceIds: Array<Scalars['ID']['input']>;
 };
 
 export type DevicesUnenrollPayload = MutationResponse & {
   __typename?: 'DevicesUnenrollPayload';
-  ok: Scalars['Boolean'];
+  ok: Scalars['Boolean']['output'];
 };
 
 export type Domain = {
   __typename?: 'Domain';
-  clockingGroupId?: Maybe<Scalars['ID']>;
+  clockingGroupId?: Maybe<Scalars['ID']['output']>;
   device?: Maybe<Device>;
   devices?: Maybe<Array<Maybe<Device>>>;
   icon?: Maybe<DomainIcon>;
-  id: Scalars['ID'];
-  legacyInterop?: Maybe<Scalars['Boolean']>;
-  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID']['output'];
+  legacyInterop?: Maybe<Scalars['Boolean']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 
 export type DomainDeviceArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 export enum DomainIcon {
@@ -316,35 +318,35 @@ export enum EnrolmentState {
 export type Identity = {
   __typename?: 'Identity';
   /** The name given to the device by the user. Example: 'Foyer' */
-  actualName?: Maybe<Scalars['String']>;
+  actualName?: Maybe<Scalars['String']['output']>;
   /**
    * The name given to the device (actualName) which may be appended with a numeric identifier if  a device of the same actualName already exists. Example: 'Foyer (2)'
    * @deprecated Not used in managed environments. Use device.name
    */
-  advertisedName?: Maybe<Scalars['String']>;
-  danteHardwareVersion?: Maybe<Scalars['String']>;
-  danteVersion?: Maybe<Scalars['String']>;
+  advertisedName?: Maybe<Scalars['String']['output']>;
+  danteHardwareVersion?: Maybe<Scalars['String']['output']>;
+  danteVersion?: Maybe<Scalars['String']['output']>;
   /** The name that the device will have when it is unboxed or factory reset. Typically contains the MAC address. Example: 'AVIOAO2-51f9e7' */
-  defaultName?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  instanceId: Scalars['ID'];
+  defaultName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  instanceId: Scalars['ID']['output'];
   /** @deprecated Use manufacturer.id */
-  manufacturerId?: Maybe<Scalars['String']>;
+  manufacturerId?: Maybe<Scalars['String']['output']>;
   /** @deprecated Use manufacturer.name */
-  manufacturerName?: Maybe<Scalars['String']>;
-  productModelId?: Maybe<Scalars['String']>;
-  productModelName?: Maybe<Scalars['String']>;
-  productSoftwareVersion?: Maybe<Scalars['String']>;
-  productVersion?: Maybe<Scalars['String']>;
+  manufacturerName?: Maybe<Scalars['String']['output']>;
+  productModelId?: Maybe<Scalars['String']['output']>;
+  productModelName?: Maybe<Scalars['String']['output']>;
+  productSoftwareVersion?: Maybe<Scalars['String']['output']>;
+  productVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Interface = {
   __typename?: 'Interface';
-  address?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  macAddress?: Maybe<Scalars['String']>;
-  netmask?: Maybe<Scalars['Int']>;
-  subnet?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  macAddress?: Maybe<Scalars['String']['output']>;
+  netmask?: Maybe<Scalars['Int']['output']>;
+  subnet?: Maybe<Scalars['String']['output']>;
 };
 
 /**
@@ -356,8 +358,8 @@ export type Interface = {
  */
 export type Manufacturer = {
   __typename?: 'Manufacturer';
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Mutation = {
@@ -389,7 +391,7 @@ export type MutationDevicesUnenrollArgs = {
 };
 
 export type MutationResponse = {
-  ok: Scalars['Boolean'];
+  ok: Scalars['Boolean']['output'];
 };
 
 /**
@@ -407,8 +409,8 @@ export type MutationResponse = {
  */
 export type Platform = {
   __typename?: 'Platform';
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 /**
@@ -427,8 +429,8 @@ export type Platform = {
 export type Product = {
   __typename?: 'Product';
   /** The name of the product from the OEM */
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Query = {
@@ -440,15 +442,15 @@ export type Query = {
 
 
 export type QueryDomainArgs = {
-  id?: InputMaybe<Scalars['ID']>;
-  name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RxChannel = {
   __typename?: 'RxChannel';
-  enabled?: Maybe<Scalars['Boolean']>;
+  enabled?: Maybe<Scalars['Boolean']['output']>;
   /** A unique identifier for the channel, used for caching purposes. Use 'index' when displaying to users */
-  id: Scalars['ID'];
+  id: Scalars['ID']['output'];
   /**
    * The channel number, starting at 1.
    *
@@ -458,16 +460,16 @@ export type RxChannel = {
    *
    * This index is unique on the given device and is not media specific.
    */
-  index: Scalars['Int'];
+  index: Scalars['Int']['output'];
   mediaType?: Maybe<ChannelMediaType>;
   /** The name of the channel */
-  name?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']['output']>;
   status?: Maybe<RxChannelStatus>;
-  statusMessage?: Maybe<Scalars['String']>;
+  statusMessage?: Maybe<Scalars['String']['output']>;
   /** The Tx channel name on the the device that this channel is subscribed to */
-  subscribedChannel?: Maybe<Scalars['String']>;
+  subscribedChannel?: Maybe<Scalars['String']['output']>;
   /** The device name of the device that this channel is subscribed to */
-  subscribedDevice?: Maybe<Scalars['String']>;
+  subscribedDevice?: Maybe<Scalars['String']['output']>;
   summary?: Maybe<RxChannelSummary>;
 };
 
@@ -593,14 +595,14 @@ export enum RxChannelSummary {
 /** A transmit channel of media (either audio or video) from a device */
 export type TxChannel = {
   __typename?: 'TxChannel';
-  id: Scalars['ID'];
-  index: Scalars['Int'];
+  id: Scalars['ID']['output'];
+  index: Scalars['Int']['output'];
   mediaType?: Maybe<ChannelMediaType>;
-  name: Scalars['String'];
+  name: Scalars['String']['output'];
 };
 
 export type DomainQueryVariables = Exact<{
-  domainIDInput: Scalars['ID'];
+  domainIDInput: Scalars['ID']['input'];
 }>;
 
 
