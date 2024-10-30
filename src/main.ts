@@ -152,6 +152,13 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 					})) ?? []),
 				],
 			},
+			{
+				id: 'disableCertificateValidation',
+				type: 'checkbox',
+				label: 'Disable certificate validation',
+				width: 8,
+				default: false,
+			},
 		]
 	}
 }

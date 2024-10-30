@@ -10,6 +10,8 @@ There are two modes of operations
 Each of these operations has a preset, which includes the appropriate feedback.
 However, the option values in each feedback will need to be set manually for each button
 
+To clear subscriptions on an Rx channel, set the Tx device and Tx channel to empty strings.
+
 ## Selector
 
 When using the selector, it is expected that a row of buttons is set up to set the selector value (i.e., the destination)
