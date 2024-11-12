@@ -57,7 +57,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 		console.log(`Getting list of available Domains`)
 		try {
-			this.domains = await getDomains(this.apolloClient)
+			this.domains = await getDomains(this)
 		} catch (e) {
 			this.updateStatus(InstanceStatus.Disconnected, e.toString())
 			return
@@ -75,7 +75,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 		console.log(`Getting specified Domain (${this.config.domainID})`)
 		try {
-			this.domain = await getDomain(this, this.apolloClient, this.config.domainID)
+			this.domain = await getDomain(this)
 		} catch (e) {
 			this.updateStatus(InstanceStatus.Disconnected, e.toString())
 			return
@@ -94,7 +94,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 		console.log(`Setting up domain update polling...`)
 		setInterval(async () => {
-			this.domain = await getDomain(this, this.apolloClient, this.config.domainID)
+			this.domain = await getDomain(this)
 			this.checkFeedbacks()
 		}, 2000)
 

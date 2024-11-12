@@ -31,11 +31,12 @@ export const domainQuery = gql`
 `
 
 export async function getDomain(	
-	self: AudinateDanteModule,
-	apolloClient: ApolloClient<NormalizedCacheObject>,
-	domainId: string
+	self: AudinateDanteModule
 ): Promise<DomainQuery['domain']> {
 	try {
+		let apolloClient: ApolloClient<NormalizedCacheObject> = self.apolloClient
+		let domainId: string = self.config.domainID
+
 		const result = await apolloClient.query<DomainQuery>({
 			query: domainQuery,
 			variables: { domainIDInput: domainId },

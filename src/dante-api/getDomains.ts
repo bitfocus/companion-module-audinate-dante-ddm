@@ -1,5 +1,6 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
 import { DomainsQuery } from '../graphql-codegen/graphql'
+import { AudinateDanteModule } from '../main'
 
 export const domainsQuery = gql`
 	query Domains {
@@ -11,10 +12,10 @@ export const domainsQuery = gql`
 `
 
 export async function getDomains(
-	apolloClient: ApolloClient<NormalizedCacheObject>
+	self: AudinateDanteModule
 ): Promise<DomainsQuery['domains'] | undefined> {
-	try {
-		const result = await apolloClient.query<DomainsQuery>({
+	try {		
+		const result = await self.apolloClient.query<DomainsQuery>({
 			query: domainsQuery,
 		})
 		if (result.error) {
