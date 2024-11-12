@@ -1,5 +1,7 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
 import { DomainQuery } from '../graphql-codegen/graphql'
+import { AudinateDanteModule } from '../main'
+import { InstanceStatus } from '@companion-module/base'
 
 export const domainQuery = gql`
 	query Domain($domainIDInput: ID!) {
@@ -28,7 +30,8 @@ export const domainQuery = gql`
 	}
 `
 
-export async function getDomain(
+export async function getDomain(	
+	self: AudinateDanteModule,
 	apolloClient: ApolloClient<NormalizedCacheObject>,
 	domainId: string
 ): Promise<DomainQuery['domain']> {
@@ -41,6 +44,7 @@ export async function getDomain(
 			console.log(result.error)
 			return
 		}
+		self.updateStatus(InstanceStatus.Ok);
 		return result.data.domain
 	} catch (e) {
 		if (e instanceof Error) {
