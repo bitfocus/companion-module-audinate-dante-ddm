@@ -10,13 +10,24 @@ export const domainsQuery = gql`
 	}
 `
 
-export async function getDomains(apolloClient: ApolloClient<NormalizedCacheObject>): Promise<DomainsQuery['domains']> {
-	const result = await apolloClient.query<DomainsQuery>({
-		query: domainsQuery,
-	})
-	if (result.error) {
-		console.log(result.error)
+export async function getDomains(
+	apolloClient: ApolloClient<NormalizedCacheObject>
+): Promise<DomainsQuery['domains'] | undefined> {
+	try {
+		const result = await apolloClient.query<DomainsQuery>({
+			query: domainsQuery,
+		})
+		if (result.error) {
+			console.log(result.error)
+			return undefined
+		}
+		return result.data.domains
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error(e.message)
+			return
+		}
+		console.error(JSON.stringify(e))
 		return
 	}
-	return result.data.domains
 }

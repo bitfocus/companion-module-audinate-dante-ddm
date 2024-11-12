@@ -14,23 +14,37 @@ export const DeviceRxChannelsSubscriptionSet = gql`
 	}
 `
 
-export function setDeviceSubscriptions(self: AudinateDanteModule, subscription: ChannelSubscription) {
-	return self.apolloClient.mutate<
-		DeviceRxChannelsSubscriptionSetMutation,
-		DeviceRxChannelsSubscriptionSetMutationVariables
-	>({
-		mutation: DeviceRxChannelsSubscriptionSet,
-		variables: {
-			input: {
-				deviceId: subscription.rxDeviceId,
-				subscriptions: [
-					{
-						rxChannelIndex: Number(subscription.rxChannelIndex),
-						subscribedDevice: subscription.txDeviceName,
-						subscribedChannel: subscription.txChannelName,
-					},
-				],
+export async function setDeviceSubscriptions(self: AudinateDanteModule, subscription: ChannelSubscription) {
+	try {
+		const result = await self.apolloClient.mutate<
+			DeviceRxChannelsSubscriptionSetMutation,
+			DeviceRxChannelsSubscriptionSetMutationVariables
+		>({
+			mutation: DeviceRxChannelsSubscriptionSet,
+			variables: {
+				input: {
+					deviceId: subscription.rxDeviceId,
+					subscriptions: [
+						{
+							rxChannelIndex: Number(subscription.rxChannelIndex),
+							subscribedDevice: subscription.txDeviceName,
+							subscribedChannel: subscription.txChannelName,
+						},
+					],
+				},
 			},
-		},
-	})
+		})
+		if (result.errors) {
+			self.log('error', result.errors.toString())
+			return undefined
+		}
+		self.log('debug', 'setDeviceSubscription returned successfully')
+		return result
+	} catch (e) {
+		if (e instanceof Error) {
+			self.log('error', e.message)
+		}
+		self.log('error', JSON.stringify(e))
+		return
+	}
 }

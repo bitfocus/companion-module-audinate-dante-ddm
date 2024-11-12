@@ -32,13 +32,22 @@ export async function getDomain(
 	apolloClient: ApolloClient<NormalizedCacheObject>,
 	domainId: string
 ): Promise<DomainQuery['domain']> {
-	const result = await apolloClient.query<DomainQuery>({
-		query: domainQuery,
-		variables: { domainIDInput: domainId },
-	})
-	if (result.error) {
-		console.log(result.error)
+	try {
+		const result = await apolloClient.query<DomainQuery>({
+			query: domainQuery,
+			variables: { domainIDInput: domainId },
+		})
+		if (result.error) {
+			console.log(result.error)
+			return
+		}
+		return result.data.domain
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error(e.message)
+			return
+		}
+		console.error(JSON.stringify(e))
 		return
 	}
-	return result.data.domain
 }
