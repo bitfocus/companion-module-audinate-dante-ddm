@@ -36,7 +36,7 @@ export async function setDeviceSubscriptions(self: AudinateDanteModule, subscrip
 		})
 		if (result.errors) {
 			self.log('error', result.errors.toString())
-			return undefined
+			return
 		}
 		self.log('debug', 'setDeviceSubscription returned successfully')
 		return result

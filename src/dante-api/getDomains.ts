@@ -20,7 +20,7 @@ export async function getDomains(
 		})
 		if (result.error) {
 			console.log(result.error)
-			return undefined
+			return
 		}
 		return result.data.domains
 	} catch (e) {
