@@ -1,6 +1,6 @@
 {
 	"name": "companion-module-audinate-dante-ddm",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"main": "dist/main.js",
 	"scripts": {
 		"clean": "rimraf dist",
