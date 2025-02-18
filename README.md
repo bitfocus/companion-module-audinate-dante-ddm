@@ -25,7 +25,7 @@ GraphQL CodeGen generates TypeScript types based on the GraphQL schema and opera
 
 ## Maintainers
 
-* James Abbottsmith <james.abbottsmith@gmail.com>
+- James Abbottsmith <james.abbottsmith@gmail.com>
 
 ## License
 

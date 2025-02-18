@@ -13,7 +13,7 @@ export interface ChannelSubscription {
  */
 export function parseSubscriptionInfoFromOptions(
 	self: AudinateDanteModule,
-	options: CompanionOptionValues
+	options: CompanionOptionValues,
 ): ChannelSubscription | null {
 	let { rx, tx, useSelector, rxSelector } = options
 

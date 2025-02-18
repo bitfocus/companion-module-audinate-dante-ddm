@@ -19,7 +19,7 @@
 		"apiVersion": "0.0.1",
 		"entrypoint": "../dist/main.js"
 	},
-	"legacyIds":[],
+	"legacyIds": [],
 	"manufacturer": "Audinate",
 	"products": ["Dante"],
 	"keywords": ["Audinate", "Dante", "subscription", "subscribe", "DDM"]

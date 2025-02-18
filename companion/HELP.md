@@ -4,8 +4,8 @@ This module enables the ability to set Dante subscriptions using a managed domai
 
 There are two modes of operations:
 
-   1. Creating subscriptions using fixed values for Rx and Tx
-   2. Creating subscriptions using a selector (first, select the Rx, then the Tx)
+1.  Creating subscriptions using fixed values for Rx and Tx
+2.  Creating subscriptions using a selector (first, select the Rx, then the Tx)
 
 Each of these operations has a preset, which includes the appropriate feedback. However, the option values in each feedback will need to be set manually for each button.
 
@@ -21,7 +21,7 @@ This module requires access to the Dante Managed API, which is currently availab
 
 Each module is scoped to a particular Dante domain. If you have multiple domains you want to manage, just set up a new connection for each domain.
 
-* API Host -> The HTTP(S) endpoint for the API
-* API Key -> The secret key with access to the domain below
-* Domain ID -> The machine-friendly identifier for the domain
-* Disable certificate validation (e.g. if your server is using a self-signed certificate)
+- API Host -> The HTTP(S) endpoint for the API
+- API Key -> The secret key with access to the domain below
+- Domain ID -> The machine-friendly identifier for the domain
+- Disable certificate validation (e.g. if your server is using a self-signed certificate)

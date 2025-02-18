@@ -74,7 +74,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } = subscriptionOptions || {}
 
 				console.log(
-					`subscribing channel ${rxChannelIndex} on device ${rxDeviceId} to channel ${txChannelName} on device ${txDeviceName}`
+					`subscribing channel ${rxChannelIndex} on device ${rxDeviceId} to channel ${txChannelName} on device ${txDeviceName}`,
 				)
 
 				const result = await setDeviceSubscriptions(self, subscriptionOptions)

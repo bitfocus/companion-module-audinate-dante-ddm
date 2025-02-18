@@ -162,10 +162,10 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			{
 				id: 'message',
 				type: 'static-text',
-				label: "Reminder",
-				value: "The module must be restarted manually for these settings to take effect",
-				width: 8
-			}
+				label: 'Reminder',
+				value: 'The module must be restarted manually for these settings to take effect',
+				width: 8,
+			},
 		]
 	}
 }

@@ -11,10 +11,8 @@ export const domainsQuery = gql`
 	}
 `
 
-export async function getDomains(
-	self: AudinateDanteModule
-): Promise<DomainsQuery['domains'] | undefined> {
-	try {		
+export async function getDomains(self: AudinateDanteModule): Promise<DomainsQuery['domains'] | undefined> {
+	try {
 		const result = await self.apolloClient.query<DomainsQuery>({
 			query: domainsQuery,
 		})

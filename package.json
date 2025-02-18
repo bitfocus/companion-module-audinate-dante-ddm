@@ -8,15 +8,15 @@
 		"transpile": "tsc",
 		"install": "npm run --silent transpile",
 		"graphql-codegen": "npx graphql-code-generator --verbose",
-		"prepare": "husky install",
+		"prepare": "husky",
 		"dev": "yarn build:watch",
 		"build": "rimraf dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"build:watch": "tsc -p tsconfig.build.json --watch",
-		"lint": "eslint ./src --ext .ts",
+		"lint": "eslint -c ./eslint.config.js ./src",
 		"postinstall": "yarn build"
 	},
-	"license": "MIT",
+	"license": "MIT",	
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-audinate-dante-ddm.git"
@@ -24,24 +24,24 @@
 	"dependencies": {
 		"@apollo/client": "^3.10.4",
 		"@babel/core": "^7.24.5",
-		"@companion-module/base": "~1.8.0",
+		"@companion-module/base": "^1.11.3",
 		"@graphql-codegen/client-preset": "^4.2.6",
 		"@types/node": "^18.19.33",
-		"@typescript-eslint/parser": "^7.10.0",
+		"@typescript-eslint/parser": "^8.24.1",
 		"cross-fetch": "^4.0.0",
-		"eslint": "^8.57.0",
+		"eslint": "^9.20.1",
 		"graphql": "^16.8.1",
 		"graphql-tag": "^2.12.6"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^1.5.0",
+		"@companion-module/tools": "^2.1.1",
 		"@graphql-codegen/cli": "^5.0.2",
 		"@graphql-codegen/typescript": "^4.0.7",
 		"@graphql-codegen/typescript-operations": "^4.2.1",
-		"@typescript-eslint/eslint-plugin": "^7.10.0",
+		"@typescript-eslint/eslint-plugin": "^8.24.1",
+		"husky": "^9.0.11",
 		"rimraf": "^5.0.7",
-		"typescript": "^5.4.5",
-		"husky": "^9.0.11"
+		"typescript": "^5.4.5"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json"
 }

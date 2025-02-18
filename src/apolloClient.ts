@@ -5,7 +5,7 @@ import { onError } from '@apollo/client/link/error'
 import { InstanceStatus } from '@companion-module/base'
 
 import fetch from 'cross-fetch'
-import https from 'https';
+import https from 'https'
 import { AudinateDanteModule } from './main'
 
 export function getApolloClient(self: AudinateDanteModule, uri: string, token?: string) {
@@ -26,11 +26,10 @@ export function getApolloClient(self: AudinateDanteModule, uri: string, token?: 
 	const customFetch = (uri, options) => {
 		return fetch(uri, {
 			...options,
-			agent: new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation })
+			agent: new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation }),
 		})
 	}
 
-	
 	const httpLink = new HttpLink({ uri, fetch: customFetch })
 
 	const authLink = setContext((_request, { headers }) => ({
@@ -48,24 +47,18 @@ export function getApolloClient(self: AudinateDanteModule, uri: string, token?: 
 				}
 			})
 
-		const networkErrorMessages = [
-			'Load failed',
-			'Failed to fetch',
-			'NetworkError when attempting to fetch resource',
-		];
+		const networkErrorMessages = ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource']
 
 		if (
 			networkError?.message &&
-			networkErrorMessages.some((networkErrorMessage) =>
-			  networkError?.message?.includes(networkErrorMessage),
-			)
-		  ) {
-			networkError.message = 'Unable to connect to server';
-			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`);
-		  } else if (networkError) {			
-			self.updateStatus(InstanceStatus.ConnectionFailure, `Network error`);
-			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`);
-		  }
+			networkErrorMessages.some((networkErrorMessage) => networkError?.message?.includes(networkErrorMessage))
+		) {
+			networkError.message = 'Unable to connect to server'
+			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
+		} else if (networkError) {
+			self.updateStatus(InstanceStatus.ConnectionFailure, `Network error`)
+			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
+		}
 	})
 
 	return new ApolloClient({

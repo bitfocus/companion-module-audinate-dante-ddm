@@ -78,7 +78,7 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				const currentRxDevice = self.domain?.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
 
 				const currentRxChannel = currentRxDevice?.rxChannels.find(
-					(rxChannel) => rxChannel.index === Number(rxChannelIndex)
+					(rxChannel) => rxChannel.index === Number(rxChannelIndex),
 				)
 
 				if (!currentRxDevice || !currentRxChannel) {
@@ -111,7 +111,7 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				const currentRxDevice = self.domain?.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
 
 				const currentRxChannel = currentRxDevice?.rxChannels.find(
-					(rxChannel) => rxChannel.index === Number(rxChannelIndex)
+					(rxChannel) => rxChannel.index === Number(rxChannelIndex),
 				)
 
 				if (!currentRxDevice || !currentRxChannel) {
@@ -165,7 +165,7 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				const { rx, rxSelector } = feedback.options
 				self.variables[rxSelector?.toString()] = rx?.toString()
 				const currentSelectorValue = self.getVariableValue(rxSelector.toString())
-				if(currentSelectorValue === rx) {
+				if (currentSelectorValue === rx) {
 					return true
 				}
 				return false
