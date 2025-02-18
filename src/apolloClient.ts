@@ -1,14 +1,24 @@
-import { ApolloClient, DefaultOptions, from, gql, HttpLink, InMemoryCache } from '@apollo/client/core'
-
-import { setContext } from '@apollo/client/link/context'
-import { onError } from '@apollo/client/link/error'
+// eslint-disable-next-line n/no-missing-import
+import { ApolloClient, DefaultOptions, from } from '@apollo/client/core/index.js'
+// eslint-disable-next-line n/no-missing-import
+import { HttpLink } from '@apollo/client/link/http/index.js'
+// eslint-disable-next-line n/no-missing-import
+import { InMemoryCache, NormalizedCacheObject } from '@apollo/client/cache/index.js'
+// eslint-disable-next-line n/no-missing-import
+import { setContext } from '@apollo/client/link/context/index.js'
+// eslint-disable-next-line n/no-missing-import
+import { onError } from '@apollo/client/link/error/index.js'
 import { InstanceStatus } from '@companion-module/base'
 
 import fetch from 'cross-fetch'
 import https from 'https'
-import { AudinateDanteModule } from './main'
+import { AudinateDanteModule } from './main.js'
 
-export function getApolloClient(self: AudinateDanteModule, uri: string, token?: string) {
+export function getApolloClient(
+	self: AudinateDanteModule,
+	uri: string,
+	token?: string,
+): ApolloClient<NormalizedCacheObject> {
 	const defaultOptions: DefaultOptions = {
 		watchQuery: {
 			fetchPolicy: 'no-cache',
@@ -23,7 +33,7 @@ export function getApolloClient(self: AudinateDanteModule, uri: string, token?: 
 		},
 	}
 
-	const customFetch = (uri, options) => {
+	const customFetch = async (uri: RequestInfo | URL, options: any) => {
 		return fetch(uri, {
 			...options,
 			agent: new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation }),
@@ -42,7 +52,7 @@ export function getApolloClient(self: AudinateDanteModule, uri: string, token?: 
 	const errorLink = onError(({ graphQLErrors, networkError }) => {
 		if (graphQLErrors)
 			graphQLErrors.forEach((error) => {
-				if (error.extensions.code === 'INTERNAL_SERVER_ERROR') {
+				if (error.extensions && error.extensions.code === 'INTERNAL_SERVER_ERROR') {
 					console.log(`[GraphQL error]: Message: ${error.message}`)
 				}
 			})

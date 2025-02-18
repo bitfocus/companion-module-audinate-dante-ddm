@@ -1,12 +1,8 @@
 {
+	"extends": "./tsconfig.build.json",
+	"include": ["src/**/*.ts", "codegen.ts"],
+	"exclude": ["node_modules/**"],
 	"compilerOptions": {
-		"target": "ES2019",
-		"module": "commonjs",
-		"declaration": true,
-		"outDir": "./dist",
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-	},
-	"include": ["src/**/*"],
+		"types": ["jest", "node"]
+	}
 }

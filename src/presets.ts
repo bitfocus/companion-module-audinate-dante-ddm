@@ -1,7 +1,6 @@
 import { CompanionPresetDefinitions } from '@companion-module/base'
-import { AudinateDanteModule } from './main'
 
-export function generatePresets(self: AudinateDanteModule): CompanionPresetDefinitions {
+export function generatePresets(): CompanionPresetDefinitions {
 	return {
 		subscribeChannel: {
 			name: 'Subscribe Dante Channel',

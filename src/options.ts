@@ -1,5 +1,5 @@
 import { CompanionOptionValues } from '@companion-module/base'
-import { AudinateDanteModule } from './main'
+import { AudinateDanteModule } from './main.js'
 
 export interface ChannelSubscription {
 	rxChannelIndex: string
@@ -15,7 +15,8 @@ export function parseSubscriptionInfoFromOptions(
 	self: AudinateDanteModule,
 	options: CompanionOptionValues,
 ): ChannelSubscription | null {
-	let { rx, tx, useSelector, rxSelector } = options
+	let { rx, tx } = options
+	const { useSelector, rxSelector } = options
 
 	if (useSelector) {
 		if (!rxSelector || typeof rxSelector !== 'string') {

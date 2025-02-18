@@ -9,31 +9,37 @@ import {
 
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 
-import { getApolloClient } from './apolloClient'
-import { getDomain } from './dante-api/getDomain'
-import { getDomains } from './dante-api/getDomains'
+import { getApolloClient } from './apolloClient.js'
+import { getDomain } from './dante-api/getDomain.js'
+import { getDomains } from './dante-api/getDomains.js'
 
-import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql'
+import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql.js'
 
-import UpgradeScripts from './upgrades'
-import generateActions from './actions'
-import generateFeedbacks from './feedbacks'
-import { generatePresets } from './presets'
-import { generateVariables } from './variables'
+import { ConfigType } from './config.js'
+import UpgradeScripts from './upgrades.js'
+import generateActions from './actions.js'
+import generateFeedbacks from './feedbacks.js'
+import { generatePresets } from './presets.js'
+import { generateVariables } from './variables.js'
 
 export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
 	variables: CompanionVariableValues
 
-	domains: DomainsQuery['domains']
+	domains?: DomainsQuery['domains']
 	domain: DomainQuery['domain']
-	apolloClient: ApolloClient<NormalizedCacheObject>
+	apolloClient?: ApolloClient<NormalizedCacheObject>
 
-	constructor(internal) {
+	constructor(internal: unknown) {
 		super(internal)
+		this.config = <ConfigType>{}
+		this.variables = <CompanionVariableValues>{}
+		this.domains = <DomainsQuery['domains']>[]
+		this.domain = <DomainQuery['domain']>{}
+		// this.apolloClient = undefined
 	}
 
-	async init(config) {
+	async init(config: ConfigType): Promise<void> {
 		this.config = config
 
 		delete this.domains
@@ -59,7 +65,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		try {
 			this.domains = await getDomains(this)
 		} catch (e) {
-			this.updateStatus(InstanceStatus.Disconnected, e.toString())
+			this.updateStatus(InstanceStatus.Disconnected, (e as Error).toString())
 			return
 		}
 
@@ -77,7 +83,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		try {
 			this.domain = await getDomain(this)
 		} catch (e) {
-			this.updateStatus(InstanceStatus.Disconnected, e.toString())
+			this.updateStatus(InstanceStatus.Disconnected, (e as Error).toString())
 			return
 		}
 
@@ -90,9 +96,10 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.setVariableDefinitions(generateVariables())
 		this.setFeedbackDefinitions(generateFeedbacks(this))
 		this.setActionDefinitions(generateActions(this))
-		this.setPresetDefinitions(generatePresets(this))
+		this.setPresetDefinitions(generatePresets())
 
 		console.log(`Setting up domain update polling...`)
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		setInterval(async () => {
 			this.domain = await getDomain(this)
 			this.checkFeedbacks()
@@ -102,11 +109,11 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	}
 
 	// When module gets deleted
-	async destroy() {
+	async destroy(): Promise<void> {
 		this.log('debug', 'destroy')
 	}
 
-	async configUpdated(config) {
+	async configUpdated(config: ConfigType): Promise<void> {
 		console.log(`Configuration updated`)
 		console.log(config)
 		await this.init(config)
@@ -146,10 +153,15 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				default: 'default',
 				choices: [
 					{ id: 'default', label: 'None' },
-					...(this.domains?.map((d) => ({
-						id: d.id,
-						label: d.name,
-					})) ?? []),
+					...(this.domains?.map((d) => {
+						if (d && d.id && d.name) {
+							return {
+								id: d.id,
+								label: d.name,
+							}
+						}
+						return { id: '', label: '' }
+					}) ?? []),
 				],
 			},
 			{

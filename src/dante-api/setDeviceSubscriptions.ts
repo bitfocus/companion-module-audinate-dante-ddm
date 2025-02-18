@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client/core'
+// eslint-disable-next-line n/no-missing-import
+import { FetchResult, gql } from '@apollo/client/core/index.js'
 import {
 	DeviceRxChannelsSubscriptionSetMutation,
 	DeviceRxChannelsSubscriptionSetMutationVariables,
-} from '../graphql-codegen/graphql'
-import { AudinateDanteModule } from '../main'
-import { ChannelSubscription } from '../options'
+} from '../graphql-codegen/graphql.js'
+import { AudinateDanteModule } from '../main.js'
+import { ChannelSubscription } from '../options.js'
 
 export const DeviceRxChannelsSubscriptionSet = gql`
 	mutation DeviceRxChannelsSubscriptionSet($input: DeviceRxChannelsSubscriptionSetInput!) {
@@ -14,8 +15,15 @@ export const DeviceRxChannelsSubscriptionSet = gql`
 	}
 `
 
-export async function setDeviceSubscriptions(self: AudinateDanteModule, subscription: ChannelSubscription) {
+export async function setDeviceSubscriptions(
+	self: AudinateDanteModule,
+	subscription: ChannelSubscription,
+): Promise<FetchResult<DeviceRxChannelsSubscriptionSetMutation> | undefined> {
 	try {
+		if (!self.apolloClient) {
+			self.log('error', 'Apollo Client is not initialized')
+			return
+		}
 		const result = await self.apolloClient.mutate<
 			DeviceRxChannelsSubscriptionSetMutation,
 			DeviceRxChannelsSubscriptionSetMutationVariables
@@ -35,7 +43,7 @@ export async function setDeviceSubscriptions(self: AudinateDanteModule, subscrip
 			},
 		})
 		if (result.errors) {
-			self.log('error', result.errors.toString())
+			self.log('error', JSON.stringify(result.errors))
 			return
 		}
 		self.log('debug', 'setDeviceSubscription returned successfully')

@@ -1,7 +1,7 @@
-import { CompanionFeedbackDefinitions, SomeCompanionFeedbackInputField } from '@companion-module/base'
-import { RxChannelSummary } from './graphql-codegen/graphql'
-import { AudinateDanteModule } from './main'
-import { parseSubscriptionInfoFromOptions } from './options'
+import { CompanionFeedbackDefinitions, DropdownChoice, SomeCompanionFeedbackInputField } from '@companion-module/base'
+import { RxChannelSummary } from './graphql-codegen/graphql.js'
+import { AudinateDanteModule } from './main.js'
+import { parseSubscriptionInfoFromOptions } from './options.js'
 
 function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefinitions {
 	const variableSelector = [1, 2, 3, 4].map((s) => ({
@@ -15,12 +15,14 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 			type: 'dropdown',
 			label: 'Rx Channel@Device',
 			default: 'Select a receive channel',
-			choices: self.domain.devices?.flatMap((d) => {
-				return d.rxChannels.map((rxChannel) => ({
-					id: `${rxChannel.index}@${d.id}`,
-					label: `${rxChannel.name}@${d.name}`,
-				}))
-			}),
+			choices: (self.domain?.devices?.flatMap((d) => {
+				return (
+					d?.rxChannels?.map((rxChannel) => ({
+						id: `${rxChannel?.index}@${d.id}`,
+						label: `${rxChannel?.name}@${d.name}`,
+					})) ?? []
+				)
+			}) ?? []) as DropdownChoice[],
 			allowCustom: true,
 			tooltip: 'The receiving channel to set the subscription on',
 			isVisible: (o) => {
@@ -50,12 +52,18 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 			type: 'dropdown',
 			label: 'Tx Channel@Device',
 			default: 'Select a transmit channel',
-			choices: self.domain.devices?.flatMap((d) => {
-				return d.txChannels.map((txChannel) => ({
-					id: `${txChannel.name}@${d.name}`,
-					label: `${txChannel.name}@${d.name}`,
-				}))
-			}),
+			choices: (self.domain?.devices?.flatMap((d) => {
+				return d?.txChannels
+					?.map((txChannel) =>
+						txChannel
+							? {
+									id: `${txChannel.name}@${d.name}`,
+									label: `${txChannel.name}@${d.name}`,
+								}
+							: null,
+					)
+					.filter((txChannel): txChannel is { id: string; label: string } => txChannel !== null)
+			}) ?? []) as DropdownChoice[],
 			allowCustom: true,
 			tooltip: 'The transmitting device to subscribe to',
 		},
@@ -75,10 +83,10 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } =
 					parseSubscriptionInfoFromOptions(self, feedback.options) || {}
 
-				const currentRxDevice = self.domain?.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === rxDeviceId)
 
-				const currentRxChannel = currentRxDevice?.rxChannels.find(
-					(rxChannel) => rxChannel.index === Number(rxChannelIndex),
+				const currentRxChannel = currentRxDevice?.rxChannels?.find(
+					(rxChannel) => rxChannel?.index === Number(rxChannelIndex),
 				)
 
 				if (!currentRxDevice || !currentRxChannel) {
@@ -108,10 +116,10 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } =
 					parseSubscriptionInfoFromOptions(self, feedback.options) || {}
 
-				const currentRxDevice = self.domain?.devices.find((rxDevice) => rxDevice.id === rxDeviceId)
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === rxDeviceId)
 
-				const currentRxChannel = currentRxDevice?.rxChannels.find(
-					(rxChannel) => rxChannel.index === Number(rxChannelIndex),
+				const currentRxChannel = currentRxDevice?.rxChannels?.find(
+					(rxChannel) => rxChannel?.index === Number(rxChannelIndex),
 				)
 
 				if (!currentRxDevice || !currentRxChannel) {
@@ -151,20 +159,24 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 					type: 'dropdown',
 					label: 'Rx Channel@Device',
 					default: 'Select a receive channel',
-					choices: self.domain.devices?.flatMap((d) => {
-						return d.rxChannels.map((rxChannel) => ({
-							id: `${rxChannel.index}@${d.id}`,
-							label: `${rxChannel.name}@${d.name}`,
-						}))
-					}),
+					choices: (self.domain?.devices?.flatMap((d) => {
+						return (
+							d?.rxChannels?.map((rxChannel) => ({
+								id: `${rxChannel?.index}@${d.id}`,
+								label: `${rxChannel?.name}@${d.name}`,
+							})) ?? []
+						)
+					}) ?? []) as DropdownChoice[],
 					allowCustom: true,
 					tooltip: 'The receiving channel to set the subscription on',
 				},
 			],
 			callback: (feedback) => {
 				const { rx, rxSelector } = feedback.options
-				self.variables[rxSelector?.toString()] = rx?.toString()
-				const currentSelectorValue = self.getVariableValue(rxSelector.toString())
+				if (rxSelector) {
+					self.variables[rxSelector.toString()] = rx?.toString()
+				}
+				const currentSelectorValue = rxSelector ? self.getVariableValue(rxSelector.toString()) : undefined
 				if (currentSelectorValue === rx) {
 					return true
 				}

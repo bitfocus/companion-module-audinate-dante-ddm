@@ -2,21 +2,22 @@
 	"name": "companion-module-audinate-dante-ddm",
 	"version": "1.1.2",
 	"main": "dist/main.js",
+	"type": "module",
 	"scripts": {
 		"clean": "rimraf dist",
 		"format": "prettier -w .",
 		"transpile": "tsc",
-		"install": "npm run --silent transpile",
+		"install": "yarn run --silent transpile",
 		"graphql-codegen": "npx graphql-code-generator --verbose",
 		"prepare": "husky",
 		"dev": "yarn build:watch",
 		"build": "rimraf dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"build:watch": "tsc -p tsconfig.build.json --watch",
-		"lint": "eslint -c ./eslint.config.js ./src",
+		"lint": "eslint",
 		"postinstall": "yarn build"
 	},
-	"license": "MIT",	
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-audinate-dante-ddm.git"
@@ -26,22 +27,33 @@
 		"@babel/core": "^7.24.5",
 		"@companion-module/base": "^1.11.3",
 		"@graphql-codegen/client-preset": "^4.2.6",
-		"@types/node": "^18.19.33",
-		"@typescript-eslint/parser": "^8.24.1",
+		"@types/node": "^22.13.4",
 		"cross-fetch": "^4.0.0",
-		"eslint": "^9.20.1",
 		"graphql": "^16.8.1",
 		"graphql-tag": "^2.12.6"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^2.1.1",
-		"@graphql-codegen/cli": "^5.0.2",
+		"@graphql-codegen/cli": "^5.0.5",
 		"@graphql-codegen/typescript": "^4.0.7",
 		"@graphql-codegen/typescript-operations": "^4.2.1",
+		"@types/jest": "^29.5.14",
 		"@typescript-eslint/eslint-plugin": "^8.24.1",
+		"@typescript-eslint/parser": "^8.24.1",
+		"eslint": "^9.20.1",
 		"husky": "^9.0.11",
-		"rimraf": "^5.0.7",
-		"typescript": "^5.4.5"
+		"prettier": "^3.5.1",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.4.5",
+		"typescript-eslint": "^8.18.1"
 	},
-	"prettier": "@companion-module/tools/.prettierrc.json"
+	"prettier": "@companion-module/tools/.prettierrc.json",
+	"lint-staged": {
+		"*.{css,json,md,scss}": [
+			"prettier --write"
+		],
+		"*.{ts,tsx,js,jsx}": [
+			"yarn lint:raw --fix"
+		]
+	}
 }

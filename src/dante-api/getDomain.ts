@@ -1,6 +1,10 @@
-import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client/core'
-import { DomainQuery } from '../graphql-codegen/graphql'
-import { AudinateDanteModule } from '../main'
+// eslint-disable-next-line n/no-missing-import
+import { ApolloClient, gql } from '@apollo/client/core/index.js'
+// eslint-disable-next-line n/no-missing-import
+import { NormalizedCacheObject } from '@apollo/client/cache/index.js'
+
+import { DomainQuery } from '../graphql-codegen/graphql.js'
+import { AudinateDanteModule } from '../main.js'
 import { InstanceStatus } from '@companion-module/base'
 
 export const domainQuery = gql`
@@ -32,8 +36,11 @@ export const domainQuery = gql`
 
 export async function getDomain(self: AudinateDanteModule): Promise<DomainQuery['domain']> {
 	try {
-		let apolloClient: ApolloClient<NormalizedCacheObject> = self.apolloClient
-		let domainId: string = self.config.domainID
+		const apolloClient: ApolloClient<NormalizedCacheObject> | undefined = self.apolloClient
+		if (!apolloClient) {
+			throw new Error('ApolloClient is not initialized')
+		}
+		const domainId: string = self.config.domainID
 
 		const result = await apolloClient.query<DomainQuery>({
 			query: domainQuery,

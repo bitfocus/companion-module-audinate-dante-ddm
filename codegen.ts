@@ -1,3 +1,4 @@
+// eslint-disable-next-line n/no-unpublished-import
 import { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
