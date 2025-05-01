@@ -1,7 +1,8 @@
-import { CompanionActionDefinitions } from '@companion-module/base'
-import { setDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
+import { CompanionActionDefinitions, SomeCompanionActionInputField } from '@companion-module/base'
+import { setDeviceSubscriptions, setMultipleChannelDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
 import { AudinateDanteModule } from './main.js'
-import { parseSubscriptionInfoFromOptions } from './options.js'
+import { parseSubscriptionInfoFromOptions, parseSubscriptionVectorInfoFromOptions } from './options.js'
+import { RxChannel } from './graphql-codegen/graphql.js'
 
 export function generateActions(self: AudinateDanteModule): CompanionActionDefinitions {
 	const availableRxChannels = self.domain?.devices?.flatMap((d) => {
@@ -15,6 +16,66 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 		id: `rx-selector-${s}`,
 		label: `Selector #${s}`,
 	}))
+
+	const buildSubscriptionDropdown = (rxChannel: RxChannel): SomeCompanionActionInputField | undefined => {
+		if (!rxChannel) {
+			return undefined
+		}
+		return {
+			id: `rxDeviceChannel-${rxChannel.id}`,
+			type: 'dropdown',
+			label: `${rxChannel.index}: ${rxChannel.name}`,
+			default: 'noChange',
+			choices: [
+				{
+					id: 'clear',
+					label: 'Clear',
+				},
+				{
+					id: 'noChange',
+					label: 'No Change',
+				},
+				...(self.domain?.devices
+					?.flatMap((d) => {
+						return d?.txChannels?.map((txChannel) => {
+							if (txChannel && d) {
+								return {
+									id: `${txChannel.name}@${d.name}`,
+									label: `${txChannel.name}@${d.name}`,
+								}
+							}
+							return null
+						})
+					})
+					.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? []),
+			],
+		}
+	}
+
+	const optionsGenerator = (): SomeCompanionActionInputField[] => {
+		return (
+			self.domain?.devices
+				?.flatMap((d) => {
+					if (!d || !d.rxChannels) {
+						return undefined
+					}
+					return d.rxChannels.map((rxChannel) => {
+						if (!rxChannel) {
+							return undefined
+						}
+						const deviceId = d.id
+						return <SomeCompanionActionInputField>{
+							...buildSubscriptionDropdown(rxChannel),
+							isVisible: (o, data) => {
+								return o['rxDevice']?.valueOf() === data
+							},
+							isVisibleData: deviceId,
+						}
+					})
+				})
+				.filter((device) => device !== undefined) ?? []
+		)
+	}
 
 	return {
 		subscribeChannel: {
@@ -87,6 +148,54 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				)
 
 				const result = await setDeviceSubscriptions(self, subscriptionOptions)
+
+				if (result?.errors) {
+					console.error(result.errors)
+				}
+				console.log(result)
+			},
+		},
+
+		subscribeMultiChannel: {
+			name: 'Subscribe Multiple Dante Channel',
+			options: [
+				{
+					id: 'rxDevice',
+					type: 'dropdown',
+					label: 'Rx Device',
+					default: ``,
+					choices:
+						self.domain?.devices
+							?.map((d) => {
+								if (d?.name && d.id) {
+									return {
+										id: d.id,
+										label: d.name,
+									}
+								}
+								return undefined
+							})
+							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
+					allowCustom: true,
+					tooltip: 'The receiving device to set the subscriptions on',
+				},
+				...optionsGenerator(),
+			],
+			callback: async (action) => {
+				const subscriptionOptions = parseSubscriptionVectorInfoFromOptions(action.options)
+
+				if (!subscriptionOptions) {
+					console.error(`subscription options not parsed, so not applying any subscription`)
+					return
+				}
+
+				for (const subscriptionObj of subscriptionOptions.subscriptions) {
+					self.log(
+						'debug',
+						`subscribing channel ${subscriptionObj.rxChannelIndex} on device ${subscriptionOptions.deviceId} to channel ${subscriptionObj.subscribedChannel} on device ${subscriptionObj.subscribedDevice}`,
+					)
+				}
+				const result = await setMultipleChannelDeviceSubscriptions(self, subscriptionOptions)
 
 				if (result?.errors) {
 					console.error(result.errors)

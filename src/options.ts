@@ -8,6 +8,61 @@ export interface ChannelSubscription {
 	txDeviceName: string
 }
 
+export interface MultipleChannelSubscription {
+	deviceId: string
+	subscriptions: SubscribedDevice[]
+}
+
+export interface SubscribedDevice {
+	rxChannelIndex: number
+	subscribedDevice: string
+	subscribedChannel: string
+}
+
+export function parseSubscriptionVectorInfoFromOptions(
+	options: CompanionOptionValues,
+): MultipleChannelSubscription | null {
+	const { rxDevice } = options
+
+	if (!rxDevice || typeof rxDevice !== 'string') {
+		return null
+	}
+	const subscriptions: SubscribedDevice[] = Object.entries(options)
+		.map(([key, value]) => {
+			if (typeof value !== 'string') {
+				return null
+			}
+			const rxChannel = key.split(`rxChannel`)
+			if (rxChannel.length < 2) {
+				return null
+			}
+			if (!rxChannel[0].includes(rxDevice)) {
+				return null
+			}
+			const rxChannelIndex = parseInt(rxChannel[1].split(`:`)[1], 10)
+			let [subscribedChannel, subscribedDevice] = value.split(`@`)
+
+			if (subscribedChannel === `noChange`) {
+				return null
+			}
+			if (subscribedChannel === `clear`) {
+				subscribedChannel = ``
+				subscribedDevice = ``
+			}
+			return {
+				rxChannelIndex: rxChannelIndex,
+				subscribedDevice: subscribedDevice,
+				subscribedChannel: subscribedChannel,
+			}
+		})
+		.filter((channelSubscription) => channelSubscription !== null)
+
+	return {
+		deviceId: rxDevice,
+		subscriptions,
+	}
+}
+
 /*
  * Gathers information about the subscription from options either using direct values or from variables (if using selectors)
  */

@@ -1,13 +1,65 @@
 import { CompanionFeedbackDefinitions, DropdownChoice, SomeCompanionFeedbackInputField } from '@companion-module/base'
-import { RxChannelSummary } from './graphql-codegen/graphql.js'
+import { RxChannel, RxChannelSummary } from './graphql-codegen/graphql.js'
 import { AudinateDanteModule } from './main.js'
-import { parseSubscriptionInfoFromOptions } from './options.js'
+import { parseSubscriptionInfoFromOptions, parseSubscriptionVectorInfoFromOptions } from './options.js'
 
 function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefinitions {
 	const variableSelector = [1, 2, 3, 4].map((s) => ({
 		id: `rx-selector-${s}`,
 		label: `Selector #${s}`,
 	}))
+
+	const buildSubscriptionDropdown = (rxChannel: RxChannel): SomeCompanionFeedbackInputField | undefined => {
+		if (!rxChannel) {
+			return undefined
+		}
+		return {
+			id: `rxDeviceChannel-${rxChannel.id}`,
+			type: 'dropdown',
+			label: `${rxChannel.index}: ${rxChannel.name}`,
+			default: 'Select Tx Channel',
+			choices: [
+				...(self.domain?.devices
+					?.flatMap((d) => {
+						return d?.txChannels?.map((txChannel) => {
+							if (txChannel && d) {
+								return {
+									id: `${txChannel.name}@${d.name}`,
+									label: `${txChannel.name}@${d.name}`,
+								}
+							}
+							return null
+						})
+					})
+					.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? []),
+			],
+		}
+	}
+
+	const optionsGenerator = (): SomeCompanionFeedbackInputField[] => {
+		return (
+			self.domain?.devices
+				?.flatMap((d) => {
+					if (!d || !d.rxChannels) {
+						return undefined
+					}
+					return d.rxChannels.map((rxChannel) => {
+						if (!rxChannel) {
+							return undefined
+						}
+						const deviceId = d.id
+						return <SomeCompanionFeedbackInputField>{
+							...buildSubscriptionDropdown(rxChannel),
+							isVisible: (o, data) => {
+								return o['rxDevice']?.valueOf() === data
+							},
+							isVisibleData: deviceId,
+						}
+					})
+				})
+				.filter((device) => device !== undefined) ?? []
+		)
+	}
 
 	const options: SomeCompanionFeedbackInputField[] = [
 		{
@@ -135,6 +187,120 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				}
 
 				return false
+			},
+		},
+		isSubscribedMultiChannel: {
+			name: 'isSubscribedMultiChannel',
+			description: 'is the specified multi-channel subscription already in place (all subscriptions are in place)',
+			type: 'boolean',
+			defaultStyle: {
+				// RBG hex value converted to decimal
+				bgcolor: parseInt('BBBB00', 16),
+			},
+			options: [
+				{
+					id: 'rxDevice',
+					type: 'dropdown',
+					label: 'Rx Device',
+					default: ``,
+					choices:
+						self.domain?.devices
+							?.map((d) => {
+								if (d?.name && d.id) {
+									return {
+										id: d.id,
+										label: d.name,
+									}
+								}
+								return undefined
+							})
+							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
+					allowCustom: true,
+					tooltip: 'The receiving device to set the subscriptions on',
+				},
+				...optionsGenerator(),
+			],
+			callback: (feedback) => {
+				const { deviceId, subscriptions } = parseSubscriptionVectorInfoFromOptions(feedback.options) || {}
+				if (!deviceId) {
+					return false
+				}
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === deviceId)
+				let foundMissingSubscription = false
+				currentRxDevice?.rxChannels?.find((rxChannel) => {
+					const subscribedChannel = subscriptions?.find((channelObject) => {
+						return channelObject.rxChannelIndex === rxChannel?.index
+					})
+					if (subscribedChannel) {
+						if (
+							!(
+								rxChannel?.subscribedDevice === subscribedChannel.subscribedDevice &&
+								rxChannel?.subscribedChannel === subscribedChannel.subscribedChannel
+							)
+						) {
+							foundMissingSubscription = true
+						}
+					}
+				})
+
+				return !foundMissingSubscription
+			},
+		},
+		isSubscribedMultiChannelAndHealthy: {
+			name: 'isSubscribedMultiChannelAndHealthy',
+			description:
+				'is the specified multi-channel subscription already in place and healthy (all subscriptions are in place)',
+			type: 'boolean',
+			defaultStyle: {
+				// RBG hex value converted to decimal
+				bgcolor: parseInt('BBBB00', 16),
+			},
+			options: [
+				{
+					id: 'rxDevice',
+					type: 'dropdown',
+					label: 'Rx Device',
+					default: ``,
+					choices:
+						self.domain?.devices
+							?.map((d) => {
+								if (d?.name && d.id) {
+									return {
+										id: d.id,
+										label: d.name,
+									}
+								}
+								return undefined
+							})
+							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
+					allowCustom: true,
+					tooltip: 'The receiving device to set the subscriptions on',
+				},
+				...optionsGenerator(),
+			],
+			callback: (feedback) => {
+				const { deviceId, subscriptions } = parseSubscriptionVectorInfoFromOptions(feedback.options) || {}
+
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === deviceId)
+				let foundMissingSubscription = false
+				currentRxDevice?.rxChannels?.find((rxChannel) => {
+					const subscribedChannel = subscriptions?.find((channelObject) => {
+						return channelObject.rxChannelIndex === rxChannel?.index
+					})
+					if (subscribedChannel) {
+						if (
+							!(
+								rxChannel?.subscribedDevice === subscribedChannel.subscribedDevice &&
+								rxChannel?.subscribedChannel === subscribedChannel.subscribedChannel &&
+								rxChannel?.summary == RxChannelSummary.Connected
+							)
+						) {
+							foundMissingSubscription = true
+						}
+					}
+				})
+
+				return !foundMissingSubscription
 			},
 		},
 		isSelected: {
