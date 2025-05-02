@@ -13,12 +13,24 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 		if (!rxChannel) {
 			return undefined
 		}
+		const defaultOption =
+			rxChannel.subscribedChannel === '' && rxChannel.subscribedDevice === ''
+				? 'clear'
+				: `${rxChannel.subscribedChannel}@${rxChannel.subscribedDevice}`
 		return {
 			id: `rxDeviceChannel-${rxChannel.id}`,
 			type: 'dropdown',
 			label: `${rxChannel.index}: ${rxChannel.name}`,
-			default: 'Select Tx Channel',
+			default: defaultOption,
 			choices: [
+				{
+					id: 'clear',
+					label: 'Clear',
+				},
+				{
+					id: 'ignore',
+					label: 'Ignore',
+				},
 				...(self.domain?.devices
 					?.flatMap((d) => {
 						return d?.txChannels?.map((txChannel) => {
@@ -191,7 +203,8 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 		},
 		isSubscribedMultiChannel: {
 			name: 'isSubscribedMultiChannel',
-			description: 'is the specified multi-channel subscription already in place (all subscriptions are in place)',
+			description:
+				'is the specified multi-channel subscription already in place. Note: selecting "Ignore" would discard it from the feedback',
 			type: 'boolean',
 			defaultStyle: {
 				// RBG hex value converted to decimal
@@ -217,6 +230,13 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
 					allowCustom: true,
 					tooltip: 'The receiving device to set the subscriptions on',
+				},
+				{
+					id: 'rxChannelsHeader',
+					label: 'Rx Channels',
+					tooltip: 'The available RX channels of the selected device',
+					type: 'static-text',
+					value: '',
 				},
 				...optionsGenerator(),
 			],
@@ -231,7 +251,7 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 					const subscribedChannel = subscriptions?.find((channelObject) => {
 						return channelObject.rxChannelIndex === rxChannel?.index
 					})
-					if (subscribedChannel) {
+					if (subscribedChannel && subscribedChannel.subscribedChannel !== 'ignore') {
 						if (
 							!(
 								rxChannel?.subscribedDevice === subscribedChannel.subscribedDevice &&
@@ -245,15 +265,53 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 
 				return !foundMissingSubscription
 			},
+			learn: (action) => {
+				const { rxDevice } = action.options
+				if (!rxDevice) {
+					return undefined
+				}
+
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === action.options.rxDevice)
+				const optionsSubset: any = {}
+				Object.entries(action.options).forEach(([key, value]) => {
+					if (typeof value !== 'string') {
+						return
+					}
+					if (typeof key !== 'string') {
+						return
+					}
+					const rxChannel = key.split(`rxChannel`)
+					if (rxChannel.length < 2) {
+						return
+					}
+					const rxChannelIndex = parseInt(rxChannel[1].split(`:`)[1], 10)
+					let [txChannel, txDevice] = value.split(`@`)
+					currentRxDevice?.rxChannels?.find((channel) => {
+						if (channel?.index === rxChannelIndex) {
+							txChannel = channel.subscribedChannel ?? ``
+							txDevice = channel.subscribedDevice ?? ``
+						}
+					})
+					if (txDevice && txChannel !== '') {
+						value = `${txChannel}@${txDevice}`
+					} else {
+						value = `clear`
+					}
+					optionsSubset[`${key}`] = value
+				})
+				return {
+					...action.options,
+					...optionsSubset,
+				}
+			},
 		},
 		isSubscribedMultiChannelAndHealthy: {
 			name: 'isSubscribedMultiChannelAndHealthy',
-			description:
-				'is the specified multi-channel subscription already in place and healthy (all subscriptions are in place)',
+			description: 'is the specified multi-channel subscription already in place and healthy',
 			type: 'boolean',
 			defaultStyle: {
 				// RBG hex value converted to decimal
-				bgcolor: parseInt('BBBB00', 16),
+				bgcolor: parseInt('00CC00', 16),
 			},
 			options: [
 				{
@@ -276,23 +334,35 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 					allowCustom: true,
 					tooltip: 'The receiving device to set the subscriptions on',
 				},
+				{
+					id: 'rxChannelsHeader',
+					label: 'Rx Channels',
+					tooltip: 'The available RX channels of the selected device',
+					type: 'static-text',
+					value: '',
+				},
 				...optionsGenerator(),
 			],
 			callback: (feedback) => {
 				const { deviceId, subscriptions } = parseSubscriptionVectorInfoFromOptions(feedback.options) || {}
-
+				if (!deviceId) {
+					return false
+				}
 				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === deviceId)
+				if (currentRxDevice?.rxChannels && currentRxDevice?.rxChannels.length < 1) {
+					return false
+				}
 				let foundMissingSubscription = false
 				currentRxDevice?.rxChannels?.find((rxChannel) => {
 					const subscribedChannel = subscriptions?.find((channelObject) => {
 						return channelObject.rxChannelIndex === rxChannel?.index
 					})
-					if (subscribedChannel) {
+					if (subscribedChannel && subscribedChannel.subscribedChannel !== 'ignore') {
 						if (
 							!(
 								rxChannel?.subscribedDevice === subscribedChannel.subscribedDevice &&
 								rxChannel?.subscribedChannel === subscribedChannel.subscribedChannel &&
-								rxChannel?.summary == RxChannelSummary.Connected
+								(rxChannel?.summary == RxChannelSummary.Connected || subscribedChannel.subscribedChannel === '')
 							)
 						) {
 							foundMissingSubscription = true
@@ -301,6 +371,45 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 				})
 
 				return !foundMissingSubscription
+			},
+			learn: (action) => {
+				const { rxDevice } = action.options
+				if (!rxDevice) {
+					return undefined
+				}
+
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === action.options.rxDevice)
+				const optionsSubset: any = {}
+				Object.entries(action.options).forEach(([key, value]) => {
+					if (typeof value !== 'string') {
+						return
+					}
+					if (typeof key !== 'string') {
+						return
+					}
+					const rxChannel = key.split(`rxChannel`)
+					if (rxChannel.length < 2) {
+						return
+					}
+					const rxChannelIndex = parseInt(rxChannel[1].split(`:`)[1], 10)
+					let [txChannel, txDevice] = value.split(`@`)
+					currentRxDevice?.rxChannels?.find((channel) => {
+						if (channel?.index === rxChannelIndex) {
+							txChannel = channel.subscribedChannel ?? ``
+							txDevice = channel.subscribedDevice ?? ``
+						}
+					})
+					if (txDevice && txChannel !== '') {
+						value = `${txChannel}@${txDevice}`
+					} else {
+						value = `clear`
+					}
+					optionsSubset[`${key}`] = value
+				})
+				return {
+					...action.options,
+					...optionsSubset,
+				}
 			},
 		},
 		isSelected: {

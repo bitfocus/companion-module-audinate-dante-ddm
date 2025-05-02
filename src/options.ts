@@ -42,7 +42,7 @@ export function parseSubscriptionVectorInfoFromOptions(
 			const rxChannelIndex = parseInt(rxChannel[1].split(`:`)[1], 10)
 			let [subscribedChannel, subscribedDevice] = value.split(`@`)
 
-			if (subscribedChannel === `noChange`) {
+			if (subscribedChannel === `ignore`) {
 				return null
 			}
 			if (subscribedChannel === `clear`) {

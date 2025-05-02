@@ -25,15 +25,15 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 			id: `rxDeviceChannel-${rxChannel.id}`,
 			type: 'dropdown',
 			label: `${rxChannel.index}: ${rxChannel.name}`,
-			default: 'noChange',
+			default: 'ignore',
 			choices: [
 				{
 					id: 'clear',
 					label: 'Clear',
 				},
 				{
-					id: 'noChange',
-					label: 'No Change',
+					id: 'ignore',
+					label: 'Ignore',
 				},
 				...(self.domain?.devices
 					?.flatMap((d) => {
@@ -158,6 +158,8 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 
 		subscribeMultiChannel: {
 			name: 'Subscribe Multiple Dante Channel',
+			description:
+				'From the drop down, select an Rx device, then make the required selections for each Rx channels with the dropdowns. Note: select "clear" to clear out the subscription and "Ignore" to not make any changes to the specific Rx channel. Select "Learn" to load latest state from the device',
 			options: [
 				{
 					id: 'rxDevice',
@@ -178,6 +180,13 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
 					allowCustom: true,
 					tooltip: 'The receiving device to set the subscriptions on',
+				},
+				{
+					id: 'rxChannelsHeader',
+					label: 'Rx Channels',
+					tooltip: 'The available RX channels of the selected device',
+					type: 'static-text',
+					value: '',
 				},
 				...optionsGenerator(),
 			],
@@ -201,6 +210,45 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					console.error(result.errors)
 				}
 				console.log(result)
+			},
+			learn: (action) => {
+				const { rxDevice } = action.options
+				if (!rxDevice) {
+					return undefined
+				}
+
+				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === action.options.rxDevice)
+				const optionsSubset: any = {}
+				Object.entries(action.options).forEach(([key, value]) => {
+					if (typeof value !== 'string') {
+						return
+					}
+					if (typeof key !== 'string') {
+						return
+					}
+					const rxChannel = key.split(`rxChannel`)
+					if (rxChannel.length < 2) {
+						return
+					}
+					const rxChannelIndex = parseInt(rxChannel[1].split(`:`)[1], 10)
+					let [txChannel, txDevice] = value.split(`@`)
+					currentRxDevice?.rxChannels?.find((channel) => {
+						if (channel?.index === rxChannelIndex) {
+							txChannel = channel.subscribedChannel ?? ``
+							txDevice = channel.subscribedDevice ?? ``
+						}
+					})
+					if (txDevice && txChannel !== '') {
+						value = `${txChannel}@${txDevice}`
+					} else {
+						value = `clear`
+					}
+					optionsSubset[`${key}`] = value
+				})
+				return {
+					...action.options,
+					...optionsSubset,
+				}
 			},
 		},
 
