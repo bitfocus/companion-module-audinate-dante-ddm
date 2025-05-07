@@ -2,6 +2,50 @@ import { CompanionPresetDefinitions } from '@companion-module/base'
 
 export function generatePresets(): CompanionPresetDefinitions {
 	return {
+		subscribeMultiChannel: {
+			name: 'Subscribe Multiple Dante Channel',
+			category: 'Commands',
+			feedbacks: [
+				{
+					feedbackId: 'isSubscribedMultiChannel',
+					options: {
+						rxDevice: '',
+					},
+					style: {
+						bgcolor: parseInt('BBBB00', 16),
+					},
+				},
+				{
+					feedbackId: 'isSubscribedMultiChannelAndHealthy',
+					options: {
+						rxDevice: '',
+					},
+					style: {
+						bgcolor: parseInt('00CC00', 16),
+					},
+				},
+			],
+			type: 'button',
+			style: {
+				text: 'Subscribe Multi Dante Channel',
+				size: '14',
+				color: parseInt('FFFFFF', 16),
+				bgcolor: parseInt('000000', 16),
+			},
+			steps: [
+				{
+					up: [
+						{
+							actionId: 'subscribeMultiChannel',
+							options: {
+								rxDevice: '',
+							},
+						},
+					],
+					down: [],
+				},
+			],
+		},
 		subscribeChannel: {
 			name: 'Subscribe Dante Channel',
 			category: 'Commands',
