@@ -169,6 +169,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				type: 'checkbox',
 				label: 'Disable certificate validation',
 				width: 8,
+				tooltip: 'For http api endpoints, setting this value has no affect',
 				default: false,
 			},
 			{

@@ -11,6 +11,7 @@ import { onError } from '@apollo/client/link/error/index.js'
 import { InstanceStatus } from '@companion-module/base'
 
 import fetch from 'cross-fetch'
+import http from 'http'
 import https from 'https'
 import { AudinateDanteModule } from './main.js'
 
@@ -33,14 +34,28 @@ export function getApolloClient(
 		},
 	}
 
-	const customFetch = async (uri: RequestInfo | URL, options: any) => {
+	const customFetchHttp = async (uri: RequestInfo | URL, options: any) => {
+		return fetch(uri, {
+			...options,
+			agent: new http.Agent({}),
+		})
+	}
+
+	const customFetchHttps = async (uri: RequestInfo | URL, options: any) => {
 		return fetch(uri, {
 			...options,
 			agent: new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation }),
 		})
 	}
 
-	const httpLink = new HttpLink({ uri, fetch: customFetch })
+	let httpLink
+	if (uri.toString().includes('http://')) {
+		httpLink = new HttpLink({ uri, fetch: customFetchHttp })
+	} else if (uri.toString().includes('https://') && self.config.disableCertificateValidation) {
+		httpLink = new HttpLink({ uri, fetch: customFetchHttps })
+	} else {
+		httpLink = new HttpLink({ uri, fetch })
+	}
 
 	const authLink = setContext((_request, { headers }) => ({
 		headers: {
