@@ -63,9 +63,9 @@ function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefiniti
 						return <SomeCompanionFeedbackInputField>{
 							...buildSubscriptionDropdown(rxChannel),
 							isVisible: (o, data) => {
-								return o['rxDevice']?.valueOf() === data
+								return o['rxDevice']?.valueOf() === data.deviceId
 							},
-							isVisibleData: deviceId,
+							isVisibleData: { deviceId },
 						}
 					})
 				})

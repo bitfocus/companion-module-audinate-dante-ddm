@@ -1,0 +1,26 @@
+image: node:22.14.0
+
+definitions:
+  steps:
+    - step: &yarninstall_and_codegen
+        name: Yarn install and codegen
+        script:
+          - yarn install --frozen-lockfile 
+          - yarn run graphql-codegen
+pipelines:  
+  branches:
+    default:
+      - step: *yarninstall_and_codegen
+      - step:
+          name: Build and check types
+          script:
+            - npm i rimraf
+            - yarn build
+      - step:
+          name: Run lint
+          script:
+            - npm i eslint
+            - yarn lint
+  pull-requests:
+    '**':
+      - step: *yarninstall_and_codegen

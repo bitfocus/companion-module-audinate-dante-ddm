@@ -67,9 +67,9 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 						return <SomeCompanionActionInputField>{
 							...buildSubscriptionDropdown(rxChannel),
 							isVisible: (o, data) => {
-								return o['rxDevice']?.valueOf() === data
+								return o['rxDevice']?.valueOf() === data.deviceId
 							},
-							isVisibleData: deviceId,
+							isVisibleData: { deviceId },
 						}
 					})
 				})
