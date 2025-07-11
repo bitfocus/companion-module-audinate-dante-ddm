@@ -7,20 +7,25 @@ definitions:
         script:
           - yarn install --frozen-lockfile 
           - yarn run graphql-codegen
+
 pipelines:  
-  branches:
-    default:
-      - step: *yarninstall_and_codegen
-      - step:
-          name: Build and check types
-          script:
-            - npm i rimraf
-            - yarn build
-      - step:
-          name: Run lint
-          script:
-            - npm i eslint
-            - yarn lint
-  pull-requests:
-    '**':
-      - step: *yarninstall_and_codegen
+
+  default:
+    - step: *yarninstall_and_codegen
+    - step:
+        name: Build and check types
+        script:
+          - npm i rimraf
+          - yarn build
+    - step:
+        name: Run lint
+        script:
+          - npm i eslint
+          - yarn lint
+    - step:
+        name: Build module
+        script:
+          - apt update && apt install -y jq
+          - yarn build:module
+        artifacts:
+          - "companion-module-audinate-dante-ddm.tgz"
