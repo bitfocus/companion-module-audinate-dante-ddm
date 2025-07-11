@@ -4,28 +4,40 @@ definitions:
   steps:
     - step: &yarninstall_and_codegen
         name: Yarn install and codegen
+        caches:
+          - node
         script:
-          - yarn install --frozen-lockfile 
+          - yarn install --frozen-lockfile
+          - yarn run build
           - yarn run graphql-codegen
 
-pipelines:  
-
+pipelines:
   default:
     - step: *yarninstall_and_codegen
     - step:
         name: Build and check types
+        caches:
+          - node
         script:
-          - npm i rimraf
-          - yarn build
+          - yarn run build
     - step:
-        name: Run lint
+        name: Lint
+        caches:
+          - node
         script:
-          - npm i eslint
-          - yarn lint
+          - yarn run lint
     - step:
-        name: Build module
+        name: Test
+        caches:
+          - node
+        script:
+          - yarn run test
+    - step:
+        name: Bundle module tgz
+        caches:
+          - node
         script:
           - apt update && apt install -y jq
-          - yarn build:module
+          - yarn run build:module
         artifacts:
-          - "companion-module-audinate-dante-ddm.tgz"
+          - 'companion-module-audinate-dante-ddm.tgz'

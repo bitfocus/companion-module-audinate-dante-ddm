@@ -7,16 +7,15 @@
 		"clean": "rimraf dist",
 		"format": "prettier -w .",
 		"transpile": "tsc",
-		"install": "yarn run --silent transpile",
 		"graphql-codegen": "npx graphql-code-generator --verbose",
 		"prepare": "husky",
-		"dev": "yarn build:watch",
+		"dev": "yarn run build:watch",
 		"build": "rimraf dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"build:watch": "tsc -p tsconfig.build.json --watch",
-		"build:module": "npm ci && yarn build:main && npm prune --production && ./build-module.sh",
+		"build:module": "yarn run build && yarn install --production && ./build-module.sh",
 		"lint": "eslint",
-		"postinstall": "yarn build"
+		"test": "vitest"
 	},
 	"license": "MIT",
 	"repository": {
@@ -39,14 +38,18 @@
 		"@graphql-codegen/typescript": "^4.0.7",
 		"@graphql-codegen/typescript-operations": "^4.2.1",
 		"@types/jest": "^29.5.14",
+		"@types/pem": "^1.14.4",
 		"@typescript-eslint/eslint-plugin": "^8.24.1",
 		"@typescript-eslint/parser": "^8.24.1",
 		"eslint": "^9.20.1",
 		"husky": "^9.0.11",
+		"msw": "^2.10.4",
+		"pem": "^1.14.8",
 		"prettier": "^3.5.1",
 		"rimraf": "^6.0.1",
 		"typescript": "^5.4.5",
-		"typescript-eslint": "^8.18.1"
+		"typescript-eslint": "^8.18.1",
+		"vitest": "^3.2.4"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json",
 	"lint-staged": {

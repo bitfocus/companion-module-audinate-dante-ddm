@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateVariables > should match the snapshot 1`] = `
+[
+  {
+    "name": "Rx Selector #1",
+    "variableId": "rx-selector-1",
+  },
+  {
+    "name": "Rx Selector #2",
+    "variableId": "rx-selector-2",
+  },
+  {
+    "name": "Rx Selector #3",
+    "variableId": "rx-selector-3",
+  },
+  {
+    "name": "Rx Selector #4",
+    "variableId": "rx-selector-4",
+  },
+]
+`;
