@@ -4,8 +4,8 @@ import { generateActions } from './actions.js'
 import { AudinateDanteModule } from './main.js' // Assuming this is the type location
 import { setDeviceSubscriptions, setMultipleChannelDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
 import { parseSubscriptionInfoFromOptions, parseSubscriptionVectorInfoFromOptions } from './options.js'
+import { CompanionActionDefinitions } from '@companion-module/base'
 
-// Mock dependencies
 vi.mock('./dante-api/setDeviceSubscriptions.js', () => ({
 	setDeviceSubscriptions: vi.fn(),
 	setMultipleChannelDeviceSubscriptions: vi.fn(),
@@ -16,7 +16,6 @@ vi.mock('./options.js', () => ({
 	parseSubscriptionVectorInfoFromOptions: vi.fn(),
 }))
 
-// A helper to create a mock instance of the module
 const createMockSelf = (): AudinateDanteModule =>
 	({
 		domain: {
@@ -47,30 +46,25 @@ const createMockSelf = (): AudinateDanteModule =>
 		log: vi.fn(),
 		setVariableValues: vi.fn(),
 		checkFeedbacks: vi.fn(),
-		// Add any other properties or methods from AudinateDanteModule that are used
 	}) as unknown as AudinateDanteModule
 
 describe('generateActions', () => {
 	let self: AudinateDanteModule
+	let actions: CompanionActionDefinitions
 
 	beforeEach(() => {
-		// Reset mocks and the mock instance before each test
 		vi.clearAllMocks()
 		self = createMockSelf()
-		self.variables = {} // Explicitly reset variables
+		actions = generateActions(self)
+		self.variables = {}
 	})
 
 	it('should return an object with three actions', () => {
-		const actions = generateActions(self)
 		expect(Object.keys(actions)).toEqual(['subscribeChannel', 'subscribeMultiChannel', 'setDestinationChannel'])
 	})
 
-	// ----------------------------------------------------------------
-	// Tests for 'subscribeChannel'
-	// ----------------------------------------------------------------
 	describe('subscribeChannel', () => {
 		it('should have correct name and options', () => {
-			const actions = generateActions(self)
 			const action = actions.subscribeChannel
 			if (!action) {
 				assert.fail('action not defined')
@@ -81,12 +75,10 @@ describe('generateActions', () => {
 		})
 
 		it('should generate correct choices for rx and tx dropdowns', () => {
-			const actions = generateActions(self)
 			expect(actions?.subscribeChannel).toBeDefined()
 			const rxOption = actions.subscribeChannel!.options.find((opt) => opt.id === 'rx')
 			const txOption = actions.subscribeChannel!.options.find((opt) => opt.id === 'tx')
 
-			// Expected choices
 			const expectedRxChoices = [
 				{ id: '1@device-1-id', label: 'RX 1@Device One' },
 				{ id: '2@device-1-id', label: 'RX 2@Device One' },
@@ -98,14 +90,12 @@ describe('generateActions', () => {
 				{ id: 'TX 1@Device Two', label: 'TX 1@Device Two' },
 			]
 
-			// Check if rxOption is a dropdown before accessing choices
 			if (rxOption && rxOption.type === 'dropdown') {
 				expect(rxOption.choices).toEqual(expectedRxChoices)
 			} else {
 				assert.fail('rxOption is not a dropdown or is undefined')
 			}
 
-			// Check if txOption is a dropdown before accessing choices
 			if (txOption && txOption.type === 'dropdown') {
 				expect(txOption.choices).toEqual(expectedTxChoices)
 			} else {
@@ -114,7 +104,6 @@ describe('generateActions', () => {
 		})
 
 		it('callback should call setDeviceSubscriptions with parsed options', async () => {
-			const actions = generateActions(self)
 			const mockOptions = {
 				rxChannelIndex: 1,
 				rxDeviceId: 'device-1-id',
@@ -131,7 +120,6 @@ describe('generateActions', () => {
 		})
 
 		it('callback should not call setDeviceSubscriptions if options fail to parse', async () => {
-			const actions = generateActions(self)
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(null)
 
 			await actions.subscribeChannel!.callback({ options: {} } as any, {} as any)
@@ -141,12 +129,8 @@ describe('generateActions', () => {
 		})
 	})
 
-	// ----------------------------------------------------------------
-	// Tests for 'subscribeMultiChannel'
-	// ----------------------------------------------------------------
 	describe('subscribeMultiChannel', () => {
 		it('should have correct name and dynamic options', () => {
-			const actions = generateActions(self)
 			const action = actions.subscribeMultiChannel
 			if (!action) {
 				assert.fail('"subscribeMultiChannel" action is not defined')
@@ -168,7 +152,6 @@ describe('generateActions', () => {
 		})
 
 		it('callback should call setMultipleChannelDeviceSubscriptions with parsed options', async () => {
-			const actions = generateActions(self)
 			const mockVectorOptions = {
 				deviceId: 'device-1-id',
 				subscriptions: [{ rxChannelIndex: 1, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' }],
@@ -183,13 +166,12 @@ describe('generateActions', () => {
 		})
 
 		it('learn function should return updated options based on device state', () => {
-			const actions = generateActions(self)
 			const learn = actions.subscribeMultiChannel!.learn
 			expect(learn).toBeDefined()
 
 			const initialOptions = {
 				rxDevice: 'device-1-id',
-				'rxDeviceChannel-d1-rx1': 'ignore', // This should be updated by learn
+				'rxDeviceChannel-d1-rx1': 'ignore',
 			}
 
 			const learnedOptions = learn!({ options: initialOptions } as any, {} as any)
@@ -206,13 +188,12 @@ describe('generateActions', () => {
 		})
 
 		it('learn function should return clear for unsubscribed channels', () => {
-			const actions = generateActions(self)
 			expect(actions?.subscribeMultiChannel).toBeDefined()
 			const learn = actions.subscribeMultiChannel!.learn!
 
 			const initialOptions = {
 				rxDevice: 'device-1-id',
-				'rxDeviceChannel-d1-rx2': 'ignore', // RX 2 is not subscribed in mock data
+				'rxDeviceChannel-d1-rx2': 'ignore',
 			}
 
 			const learnedOptions = learn({ options: initialOptions } as any, {} as any)
@@ -225,12 +206,8 @@ describe('generateActions', () => {
 		})
 	})
 
-	// ----------------------------------------------------------------
-	// Tests for 'setDestinationChannel'
-	// ----------------------------------------------------------------
 	describe('setDestinationChannel', () => {
 		it('should have correct name and options', () => {
-			const actions = generateActions(self)
 			const action = actions.setDestinationChannel
 			if (!action) {
 				assert.fail('action not defined')
@@ -240,7 +217,6 @@ describe('generateActions', () => {
 		})
 
 		it('callback should set a variable and update feedbacks', async () => {
-			const actions = generateActions(self)
 			const action = actions.setDestinationChannel
 
 			const mockAction = {
@@ -263,7 +239,6 @@ describe('generateActions', () => {
 		})
 
 		it('callback should not set variable if options are missing', async () => {
-			const actions = generateActions(self)
 			const action = actions.setDestinationChannel
 
 			const mockAction = {

@@ -5,6 +5,10 @@ import { parseSubscriptionInfoFromOptions, parseSubscriptionVectorInfoFromOption
 import { RxChannel } from './graphql-codegen/graphql.js'
 
 export function generateActions(self: AudinateDanteModule): CompanionActionDefinitions {
+	// Bind methods to `self` to prevent `this` scoping issues, satisfying the unbound-method lint rule.
+	const setVariableValues = self.setVariableValues.bind(self)
+	const checkFeedbacks = self.checkFeedbacks.bind(self)
+
 	const availableRxChannels = self.domain?.devices?.flatMap((d) => {
 		return d?.rxChannels?.map((rxChannel) => ({
 			id: `${rxChannel?.index}@${d.id}`,
@@ -21,7 +25,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 		if (!rxChannel) {
 			return undefined
 		}
-		return {
+		return <SomeCompanionActionInputField>{
 			id: `rxDeviceChannel-${rxChannel.id}`,
 			type: 'dropdown',
 			label: `${rxChannel.index}: ${rxChannel.name}`,
@@ -217,34 +221,36 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					return undefined
 				}
 
-				const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === action.options.rxDevice)
+				const currentRxDevice = self.domain?.devices?.find((d) => d?.id === action.options.rxDevice)
+				if (!currentRxDevice) {
+					return action.options // Return original options if device not found
+				}
 				const optionsSubset: any = {}
-				Object.entries(action.options).forEach(([key, value]) => {
-					if (typeof value !== 'string') {
-						return
+				const keyPrefix = 'rxDeviceChannel-'
+
+				// Iterate over the action's options to find the ones we need to update
+				Object.entries(action.options).forEach(([key, _value]) => {
+					if (typeof key !== 'string' || !key.startsWith(keyPrefix)) {
+						return // Skip options that aren't for an Rx channel
 					}
-					if (typeof key !== 'string') {
-						return
-					}
-					const rxChannel = key.split(`rxChannel`)
-					if (rxChannel.length < 2) {
-						return
-					}
-					const rxChannelIndex = parseInt(rxChannel[1].split(`:`)[1], 10)
-					let [txChannel, txDevice] = value.split(`@`)
-					currentRxDevice?.rxChannels?.find((channel) => {
-						if (channel?.index === rxChannelIndex) {
-							txChannel = channel.subscribedChannel ?? ``
-							txDevice = channel.subscribedDevice ?? ``
+
+					// Extract the channel ID from the option key (e.g., 'd1-rx1')
+					const rxChannelId = key.substring(keyPrefix.length)
+					const targetChannel = currentRxDevice.rxChannels?.find((ch) => ch!.id === rxChannelId)
+
+					if (targetChannel) {
+						const { subscribedChannel, subscribedDevice } = targetChannel
+						if (subscribedChannel && subscribedDevice) {
+							// If subscribed, set the value to 'channel@device'
+							optionsSubset[key] = `${subscribedChannel}@${subscribedDevice}`
+						} else {
+							// If not subscribed, set the value to 'clear'
+							optionsSubset[key] = 'clear'
 						}
-					})
-					if (txDevice && txChannel !== '') {
-						value = `${txChannel}@${txDevice}`
-					} else {
-						value = `clear`
 					}
-					optionsSubset[`${key}`] = value
 				})
+
+				// Return the original options merged with our learned values
 				return {
 					...action.options,
 					...optionsSubset,
@@ -287,14 +293,14 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					if (rx) {
 						self.variables[rxSelector.toString()] = rx.toString()
 						console.log(`set variable ${rxSelector.toString()} to ${rx.toString()}`)
+						setVariableValues(self.variables)
+						checkFeedbacks()
 					} else {
 						console.error('rx is undefined')
 					}
 				} else {
 					console.error('rxSelector is undefined')
 				}
-				self.setVariableValues(self.variables)
-				self.checkFeedbacks()
 			},
 		},
 	}

@@ -2,7 +2,7 @@ import { CompanionOptionValues } from '@companion-module/base'
 import { AudinateDanteModule } from './main.js'
 
 export interface ChannelSubscription {
-	rxChannelIndex: string
+	rxChannelIndex: number
 	rxDeviceId: string
 	txChannelName: string
 	txDeviceName: string
@@ -89,8 +89,10 @@ export function parseSubscriptionInfoFromOptions(
 		tx = '@'
 	}
 
-	const [rxChannelIndex, rxDeviceId] = rx.toString().split('@')
+	const [rxChannelIndexStr, rxDeviceId] = rx.toString().split('@')
 	const [txChannelName, txDeviceName] = tx.toString().split('@')
+
+	const rxChannelIndex = parseInt(rxChannelIndexStr, 10)
 
 	return {
 		rxChannelIndex,

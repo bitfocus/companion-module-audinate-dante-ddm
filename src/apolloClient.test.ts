@@ -1,5 +1,3 @@
-// getApolloClient.test.ts
-
 // eslint-disable-next-line n/no-unpublished-import
 import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
 
@@ -7,7 +5,7 @@ import { gql } from '@apollo/client/core'
 import { InstanceStatus } from '@companion-module/base'
 
 // eslint-disable-next-line n/no-unpublished-import
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse, graphql } from 'msw'
 // eslint-disable-next-line n/no-unpublished-import
 import { setupServer } from 'msw/node'
 import https from 'https'
@@ -15,10 +13,9 @@ import http_server from 'http'
 
 // eslint-disable-next-line n/no-unpublished-import
 import pem from 'pem'
-import { getApolloClient } from './apolloClient.js' // The function to test
-import { AudinateDanteModule } from './main.js' // Import the type for casting
+import { getApolloClient } from './apolloClient.js'
+import { AudinateDanteModule } from './main.js'
 
-// Define the GraphQL query for testing
 const DOMAINS_QUERY = gql`
 	query Domains {
 		domains {
@@ -28,7 +25,6 @@ const DOMAINS_QUERY = gql`
 	}
 `
 
-// Define the mock response data
 const mockDomainsResponse = {
 	data: {
 		domains: [
@@ -39,48 +35,41 @@ const mockDomainsResponse = {
 }
 
 // --- Mock Companion Module Instance ---
-// This object simulates the main module instance passed to the function.
 const mockSelf = {
 	config: {
 		disableCertificateValidation: false,
 	},
 	updateStatus: vi.fn(),
 	log: vi.fn(),
-	// Add properties from AudinateDanteModule to satisfy the type
 	variables: {},
 	domain: {},
 	init: vi.fn(),
 	destroy: vi.fn(),
 }
 
-// --- Server Setup ---
-// We will use a combination of a real HTTPS server for certificate tests
-// and MSW for simpler HTTP/GraphQL error tests.
-
 let httpsServer: https.Server
 let httpServer: http_server.Server
 const httpsPort = 8443 // Use a non-standard port to avoid conflicts
 const httpPort = 8080
 
-// MSW server for general cases not requiring real network errors
-const mswServer = setupServer(
-	// This handler will intercept requests that are not directed to our real test servers
-	http.post('https://ddm.example.com/graphql', () => {
-		// Used for testing a successful HTTPS connection without cert issues
+const ddm = graphql.link('http://ddm.example.com/graphql')
+const ddms = graphql.link('https://ddm.example.com/graphql')
+
+const handlers = [
+	ddm.query('Domains', () => {
 		return HttpResponse.json(mockDomainsResponse)
 	}),
-	http.post('http://ddm.example.com/graphql', () => {
-		// Used for testing a successful HTTP connection
+	ddms.query('Domains', () => {
 		return HttpResponse.json(mockDomainsResponse)
 	}),
-)
+]
+
+const mswServer = setupServer(...handlers)
 
 describe('getApolloClient', () => {
-	// Before all tests, create and start our servers
 	beforeAll(async () => {
 		mswServer.listen({ onUnhandledRequest: 'bypass' })
 
-		// 1. Create a self-signed certificate, wrapped in a promise for async/await
 		const keys = await new Promise<{ serviceKey: string; certificate: string }>((resolve, reject) => {
 			pem.createCertificate({ days: 1, selfSigned: true }, (err: Error, k: any) => {
 				if (err) {
@@ -127,7 +116,6 @@ describe('getApolloClient', () => {
 	})
 
 	it('should create a client for a valid HTTPS endpoint and fetch data successfully', async () => {
-		// We use MSW here to simulate a "valid" certificate endpoint without needing a trusted CA
 		const client = getApolloClient(mockSelf as unknown as AudinateDanteModule, 'https://ddm.example.com/graphql')
 		const response = await client.query({ query: DOMAINS_QUERY })
 
