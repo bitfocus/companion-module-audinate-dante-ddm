@@ -6,6 +6,12 @@ This module enables the ability to set Dante subscriptions using a managed Dante
 
 See [HELP.md](./companion/HELP.md) for user documentation which is also what is displayed to the user when they click on the help icon in the UI.
 
+### GraphQL CodeGen
+
+GraphQL CodeGen generates TypeScript types based on the GraphQL schema and operations (mutations, queries, etc.)
+
+`yarn run graphql-codegen` needs to run during development upon the first run, and whenever the schema changes
+
 ## Development
 
 During development, you'll need to inform Companion where to look for dev modules (like this one).
@@ -15,13 +21,11 @@ Alternatively, if you are running Companion itself directly from its source code
 In general, follow the guide here
 <https://github.com/bitfocus/companion-module-base/wiki>.
 
-This module was developed for Companion 3.0 beta. It may work with Companion 2.0 as well, but this is untested.
+To run the project, run `yarn run dev`.
 
-### GraphQL CodeGen
+To build a .tgz file and use that to point in companion app, run `yarn run build:module`, after running this `companion-module-audinate-dante-ddm.tgz` should appear in the root directory of the project. Make sure to update module version numbers in manifest to create a dev build.
 
-GraphQL CodeGen generates TypeScript types based on the GraphQL schema and operations (mutations, queries, etc.)
-
-`yarn run graphql-codegen` needs to run during development upon the first run, and whenever the schema changes
+Run `yarn run test` to run tests. Please make sure you have openssl or libressl already installed on your system/container, before running the tests.
 
 ## Maintainers
 
