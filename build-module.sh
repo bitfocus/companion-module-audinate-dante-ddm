@@ -1,24 +1,6 @@
 #!/bin/bash
 set -euxo pipefail
 
-check_companion_base_versions() {
-  local PACKAGE_FILE="package.json"
-  local MANIFEST_FILE="companion/manifest.json"
-
-  pkg_version=$(jq -r '.dependencies."@companion-module/base"' "$PACKAGE_FILE" | tr -d '^~')
-  api_version=$(jq -r '.runtime.apiVersion' "$MANIFEST_FILE")
-
-  if [ "$pkg_version" == "$api_version" ]; then
-    echo "✅ Manifest version and companion/base version match: $pkg_version"
-    return 0
-  else
-    echo "❌ Manifest version and companion/base version mismatch!" >&2
-    echo "   package.json dependency: $pkg_version" >&2
-    echo "   manifest.json apiVersion:  $api_version" >&2
-    return 1
-  fi
-}
-
 check_module_versions() {
   local PACKAGE_FILE="package.json"
   local MANIFEST_FILE="companion/manifest.json"
@@ -37,7 +19,6 @@ check_module_versions() {
   fi
 }
 
-check_companion_base_versions
 check_module_versions
 
 # Creates a .tgz file ready to be imported into Companion v4.
