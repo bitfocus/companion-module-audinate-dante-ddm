@@ -1,11 +1,11 @@
 // eslint-disable-next-line n/no-unpublished-import
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterAll, afterEach, vi } from 'vitest'
 
 import { gql } from '@apollo/client/core'
 import { InstanceStatus } from '@companion-module/base'
 
 // eslint-disable-next-line n/no-unpublished-import
-import { http, HttpResponse, graphql } from 'msw'
+import { http, HttpResponse, graphql, delay } from 'msw'
 // eslint-disable-next-line n/no-unpublished-import
 import { setupServer } from 'msw/node'
 import https from 'https'
@@ -99,9 +99,15 @@ describe('getApolloClient', () => {
 		httpServer.close()
 	})
 
+	beforeEach(() => {
+		vi.useFakeTimers()
+	})
+
 	// Reset mocks after each test
 	afterEach(() => {
+		vi.useRealTimers()
 		vi.clearAllMocks()
+		mswServer.resetHandlers()
 		mockSelf.config.disableCertificateValidation = false
 	})
 
@@ -163,5 +169,30 @@ describe('getApolloClient', () => {
 
 		expect(receivedHeaders).toBeDefined()
 		expect(receivedHeaders.get('authorization')).toBe(token)
+	})
+
+	it('should throw a timeout error if the request takes longer than 2000ms', async () => {
+		mswServer.use(
+			http.post(`http://localhost/timeout`, async () => {
+				await delay(10000)
+				return HttpResponse.json(mockDomainsResponse)
+			}),
+		)
+
+		const client = getApolloClient(mockSelf as unknown as AudinateDanteModule, `http://localhost/timeout`)
+
+		const queryPromise = client.query({ query: DOMAINS_QUERY })
+
+		// Can't use fake timers, since the AbortSignal uses a low-level fetch that
+		//   vitest can't fake
+		// await vi.advanceTimersByTimeAsync(4000)
+
+		await expect(queryPromise).rejects.to.satisfy((error: any) => {
+			expect(error.networkError?.message).toBe('The user aborted a request.')
+			return true
+		})
+
+		// The onError link should have been called.
+		expect(mockSelf.updateStatus).toHaveBeenCalledWith(InstanceStatus.ConnectionFailure, 'Network error')
 	})
 })

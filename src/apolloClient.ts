@@ -38,6 +38,7 @@ export function getApolloClient(
 		return fetch(uri, {
 			...options,
 			agent: new http.Agent({}),
+			signal: AbortSignal.timeout(4000),
 		})
 	}
 
@@ -45,16 +46,17 @@ export function getApolloClient(
 		return fetch(uri, {
 			...options,
 			agent: new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation }),
+			signal: AbortSignal.timeout(4000),
 		})
 	}
 
 	let httpLink
 	if (uri.toString().includes('http://')) {
 		httpLink = new HttpLink({ uri, fetch: customFetchHttp })
-	} else if (uri.toString().includes('https://') && self.config.disableCertificateValidation) {
+	} else if (uri.toString().includes('https://')) {
 		httpLink = new HttpLink({ uri, fetch: customFetchHttps })
 	} else {
-		httpLink = new HttpLink({ uri, fetch })
+		throw new Error('unknown URL scheme (expected http or https')
 	}
 
 	const authLink = setContext((_request, { headers }) => ({
@@ -73,6 +75,7 @@ export function getApolloClient(
 			})
 
 		const networkErrorMessages = ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource']
+		console.log(networkError?.message)
 
 		if (
 			networkError?.message &&
