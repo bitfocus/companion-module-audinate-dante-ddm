@@ -17,6 +17,9 @@
 		"lint": "eslint",
 		"test": "vitest"
 	},
+	"engines": {
+		"node": "^22.8 || ^24.5"
+	},
 	"license": "MIT",
 	"repository": {
 		"type": "git",
