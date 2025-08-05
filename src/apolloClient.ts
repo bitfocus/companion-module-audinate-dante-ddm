@@ -34,30 +34,21 @@ export function getApolloClient(
 		},
 	}
 
-	const customFetchHttp = async (uri: RequestInfo | URL, options: any) => {
+	const customFetch = async (uri: RequestInfo | URL, options: any) => {
 		return fetch(uri, {
 			...options,
-			agent: new http.Agent({}),
-			signal: AbortSignal.timeout(4000),
+			agent: function (_parsedURL: { protocol: string }) {
+				if (_parsedURL.protocol == 'http:') {
+					return new http.Agent({})
+				} else {
+					return new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation })
+				}
+			},
+			signal: AbortSignal.timeout(2000),
 		})
 	}
 
-	const customFetchHttps = async (uri: RequestInfo | URL, options: any) => {
-		return fetch(uri, {
-			...options,
-			agent: new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation }),
-			signal: AbortSignal.timeout(4000),
-		})
-	}
-
-	let httpLink
-	if (uri.toString().includes('http://')) {
-		httpLink = new HttpLink({ uri, fetch: customFetchHttp })
-	} else if (uri.toString().includes('https://')) {
-		httpLink = new HttpLink({ uri, fetch: customFetchHttps })
-	} else {
-		throw new Error('unknown URL scheme (expected http or https')
-	}
+	const httpLink = new HttpLink({ uri, fetch: customFetch })
 
 	const authLink = setContext((_request, { headers }) => ({
 		headers: {
