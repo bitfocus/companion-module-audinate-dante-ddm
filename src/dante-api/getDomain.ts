@@ -35,29 +35,24 @@ export const domainQuery = gql`
 `
 
 export async function getDomain(self: AudinateDanteModule): Promise<DomainQuery['domain']> {
+	const domainId: string = self.config.domainID
 	try {
 		const apolloClient: ApolloClient<NormalizedCacheObject> | undefined = self.apolloClient
 		if (!apolloClient) {
 			throw new Error('ApolloClient is not initialized')
 		}
-		const domainId: string = self.config.domainID
 
 		const result = await apolloClient.query<DomainQuery>({
 			query: domainQuery,
 			variables: { domainIDInput: domainId },
 		})
-		if (result.error) {
-			console.log(result.error)
-			return
-		}
-		self.updateStatus(InstanceStatus.Ok)
+
+		self.updateStatus(InstanceStatus.Ok, 'Successfully polled domain')
 		return result.data.domain
 	} catch (e) {
 		if (e instanceof Error) {
-			console.error(e.message)
-			return
+			self.log('error', `getDomain for ${domainId}: ${e.message}`)
 		}
-		console.error(JSON.stringify(e))
 		return
 	}
 }

@@ -153,10 +153,12 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 
 				const result = await setDeviceSubscriptions(self, subscriptionOptions)
 
-				if (result?.errors) {
-					console.error(result.errors)
+				if (!result) {
+					self.log('error', `subscribeChannel failed`)
+					return
 				}
-				console.log(result)
+
+				self.log('info', `subscribeMultiChannel result: ${JSON.stringify(result.data, null, 2)}`)
 			},
 		},
 
@@ -210,10 +212,12 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				}
 				const result = await setMultipleChannelDeviceSubscriptions(self, subscriptionOptions)
 
-				if (result?.errors) {
-					console.error(result.errors)
+				if (!result) {
+					self.log('error', `subscribeMultiChannel failed`)
+					return
 				}
-				console.log(result)
+
+				self.log('info', `subscribeMultiChannel result: ${JSON.stringify(result.data, null, 2)}`)
 			},
 			learn: (action) => {
 				const { rxDevice } = action.options
@@ -296,10 +300,10 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 						setVariableValues(self.variables)
 						checkFeedbacks()
 					} else {
-						console.error('rx is undefined')
+						self.log('error', 'rx is undefined')
 					}
 				} else {
-					console.error('rxSelector is undefined')
+					self.log('error', 'rxSelector is undefined')
 				}
 			},
 		},

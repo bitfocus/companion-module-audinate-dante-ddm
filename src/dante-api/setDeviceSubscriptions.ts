@@ -42,10 +42,7 @@ export async function setDeviceSubscriptions(
 				},
 			},
 		})
-		if (result.errors) {
-			self.log('error', JSON.stringify(result.errors))
-			return
-		}
+
 		self.log(
 			'debug',
 			`setDeviceSubscription returned successfully for RX = ${subscription.rxChannelIndex} and TX =${subscription.txChannelName}`,
@@ -53,12 +50,8 @@ export async function setDeviceSubscriptions(
 		return result
 	} catch (e) {
 		if (e instanceof Error) {
-			self.log('error', `${e.message} for RX = ${subscription.rxChannelIndex} and TX =${subscription.txChannelName}`)
+			self.log('error', `setDeviceSubscriptions for ${subscription.rxDeviceId}: ${e.message}`)
 		}
-		self.log(
-			'error',
-			`${JSON.stringify(e)} for RX = ${subscription.rxChannelIndex} and TX =${subscription.txChannelName}`,
-		)
 		return
 	}
 }
@@ -84,10 +77,6 @@ export async function setMultipleChannelDeviceSubscriptions(
 				},
 			},
 		})
-		if (result.errors) {
-			self.log('error', JSON.stringify(result.errors))
-			return
-		}
 
 		self.log(
 			'debug',
@@ -96,9 +85,8 @@ export async function setMultipleChannelDeviceSubscriptions(
 		return result
 	} catch (e) {
 		if (e instanceof Error) {
-			self.log('error', `${e.message} for multi-channel subscription for ${subscription.deviceId}`)
+			self.log('error', `setMultipleChannelDeviceSubscriptions for ${subscription.deviceId}: ${e.message}`)
 		}
-		self.log('error', `${JSON.stringify(e)} for multi-channel subscription for ${subscription.deviceId}`)
 		return
 	}
 }

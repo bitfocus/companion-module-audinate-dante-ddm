@@ -183,7 +183,7 @@ describe('getApolloClient', () => {
 
 		const queryPromise = client.query({ query: DOMAINS_QUERY })
 
-		// Can't use fake timers, since the AbortSignal uses a low-level fetch that
+		// Can't use fake timers, since the AbortSignal uses a low-level fetch which
 		//   vitest can't fake
 		// await vi.advanceTimersByTimeAsync(4000)
 

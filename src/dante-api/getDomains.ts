@@ -18,20 +18,16 @@ export async function getDomains(self: AudinateDanteModule): Promise<DomainsQuer
 			console.error('Apollo Client is not initialized')
 			return
 		}
+
 		const result = await self.apolloClient.query<DomainsQuery>({
 			query: domainsQuery,
 		})
-		if (result.error) {
-			console.log(result.error)
-			return
-		}
+
 		return result.data.domains
 	} catch (e) {
 		if (e instanceof Error) {
-			console.error(e.message)
-			return
+			self.log('error', `getDomains: ${e.message}`)
 		}
-		console.error(JSON.stringify(e))
 		return
 	}
 }

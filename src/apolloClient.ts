@@ -58,25 +58,29 @@ export function getApolloClient(
 	}))
 
 	const errorLink = onError(({ graphQLErrors, networkError }) => {
-		if (graphQLErrors)
+		if (graphQLErrors) {
 			graphQLErrors.forEach((error) => {
+				self.log('debug', `[GraphQL error]: ${error.message}`)
+				self.log('debug', `${JSON.stringify(error, null, 2)}`)
+
+				// Highlight internal server errors
 				if (error.extensions && error.extensions.code === 'INTERNAL_SERVER_ERROR') {
-					console.log(`[GraphQL error]: Message: ${error.message}`)
+					self.log('error', `[GraphQL server error]: Message: ${error.message}`)
 				}
 			})
+		}
 
-		const networkErrorMessages = ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource']
-		console.log(networkError?.message)
-
-		if (
-			networkError?.message &&
-			networkErrorMessages.some((networkErrorMessage) => networkError?.message?.includes(networkErrorMessage))
-		) {
-			networkError.message = 'Unable to connect to server'
+		if (networkError) {
+			self.log('error', `[Network error]: ${networkError.message}`)
 			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
-		} else if (networkError) {
+
+			// Aggregate some common types of network errors into a more user friendly message
+			const networkErrorMessages = ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource']
+			if (networkErrorMessages.some((networkErrorMessage) => networkError?.message?.includes(networkErrorMessage))) {
+				networkError.message = 'Unable to connect to server'
+			}
+
 			self.updateStatus(InstanceStatus.ConnectionFailure, `Network error`)
-			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
 		}
 	})
 
