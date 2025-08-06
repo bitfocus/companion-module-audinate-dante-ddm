@@ -122,7 +122,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 	async configUpdated(config: ConfigType): Promise<void> {
 		console.log(`Configuration updated`)
-		console.log(config)
+		console.log({ ...config, apikey: '**********' })
 		await this.init(config)
 	}
 
