@@ -3,7 +3,7 @@
 	"name": "Audinate Dante",
 	"shortname": "audinate-dante-ddm",
 	"description": "Controls Dante subscriptions",
-	"version": "1.2.1",
+	"version": "1.2.3",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-audinate-dante-ddm.git",
 	"bugs": "https://github.com/bitfocus/companion-module-audinate-dante-ddm/issues",
