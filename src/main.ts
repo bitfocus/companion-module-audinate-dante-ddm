@@ -30,13 +30,14 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	domain: DomainQuery['domain']
 	apolloClient?: ApolloClient<NormalizedCacheObject>
 
+	pollDomainAndUpdateFeedbacksInterval?: NodeJS.Timeout
+
 	constructor(internal: unknown) {
 		super(internal)
 		this.config = <ConfigType>{}
 		this.variables = <CompanionVariableValues>{}
 		this.domains = <DomainsQuery['domains']>[]
 		this.domain = <DomainQuery['domain']>{}
-		// this.apolloClient = undefined
 	}
 
 	async init(config: ConfigType): Promise<void> {
@@ -45,6 +46,8 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		delete this.domains
 		delete this.domain
 		delete this.apolloClient
+		clearInterval(this.pollDomainAndUpdateFeedbacksInterval)
+		delete this.pollDomainAndUpdateFeedbacksInterval
 
 		this.variables = {}
 
@@ -62,35 +65,26 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.apolloClient = getApolloClient(this, this.config.apihost, this.config.apikey)
 
 		console.log(`Getting list of available Domains`)
-		try {
-			this.domains = await getDomains(this)
-		} catch (e) {
-			this.updateStatus(InstanceStatus.Disconnected, (e as Error).toString())
+		this.domains = await getDomains(this)
+
+		if (!this.domains) {
+			// The InstanceStatus.Disconnected is updated inside getDomains, so that it includes the error message
 			return
 		}
 
-		if (!this.domains) {
+		// A connection to the server was established, but no domains are found
+		if (this.domains.length == 0) {
 			this.updateStatus(InstanceStatus.Connecting, 'No domains discovered')
 			return
 		}
 
-		if (!this.config.domainID) {
-			this.updateStatus(InstanceStatus.BadConfig, 'Domain not selected')
-			return
-		}
-
-		console.log(`Getting specified Domain (${this.config.domainID})`)
-		try {
-			this.domain = await getDomain(this)
-		} catch (e) {
-			this.updateStatus(InstanceStatus.Disconnected, (e as Error).toString())
-			return
-		}
-
-		if (!this.domain) {
-			this.updateStatus(InstanceStatus.Connecting, 'Domain not found')
-			return
-		}
+		console.log(`Setting up domain update polling...`)
+		// Do it once initially, then poll thereafter
+		await this.pollDomainAndUpdateFeedbacks()
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		this.pollDomainAndUpdateFeedbacksInterval = setInterval(async () => {
+			await this.pollDomainAndUpdateFeedbacks()
+		}, 2000)
 
 		console.log(`Setting up companion components...`)
 		this.setVariableDefinitions(generateVariables())
@@ -98,19 +92,32 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.setActionDefinitions(generateActions(this))
 		this.setPresetDefinitions(generatePresets())
 
-		console.log(`Setting up domain update polling...`)
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		setInterval(async () => {
-			this.domain = await getDomain(this)
-			this.checkFeedbacks()
-		}, 2000)
-
 		this.updateStatus(InstanceStatus.Ok)
+	}
+
+	async pollDomainAndUpdateFeedbacks(): Promise<void> {
+		if (!this.config.domainID || this.config.domainID == 'default') {
+			this.updateStatus(InstanceStatus.BadConfig, 'Domain not selected. Please select a domain')
+			return
+		}
+
+		console.log(`Getting specified Domain (${this.config.domainID})`)
+
+		this.domain = await getDomain(this)
+
+		if (!this.domain) {
+			this.updateStatus(InstanceStatus.Connecting, 'Domain not found. Please check the selected domain')
+			return
+		}
+
+		this.domain = await getDomain(this)
+		this.checkFeedbacks()
 	}
 
 	// When module gets deleted
 	async destroy(): Promise<void> {
-		this.log('debug', 'destroy')
+		this.log('debug', 'Destroying the module instance')
+		clearInterval(this.pollDomainAndUpdateFeedbacksInterval)
 	}
 
 	async configUpdated(config: ConfigType): Promise<void> {

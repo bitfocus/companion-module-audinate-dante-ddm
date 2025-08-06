@@ -1,5 +1,8 @@
+import { InstanceStatus } from '@companion-module/base'
+
 // eslint-disable-next-line n/no-missing-import
 import { gql } from '@apollo/client/core/index.js'
+
 import { DomainsQuery } from '../graphql-codegen/graphql.js'
 import { AudinateDanteModule } from '../main.js'
 
@@ -27,6 +30,8 @@ export async function getDomains(self: AudinateDanteModule): Promise<DomainsQuer
 	} catch (e) {
 		if (e instanceof Error) {
 			self.log('error', `getDomains: ${e.message}`)
+			self.log('debug', JSON.stringify(e, null, 2))
+			self.updateStatus(InstanceStatus.Disconnected, e.message)
 		}
 		return
 	}

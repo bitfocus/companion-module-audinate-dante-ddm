@@ -75,7 +75,12 @@ export function getApolloClient(
 			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
 
 			// Aggregate some common types of network errors into a more user friendly message
-			const networkErrorMessages = ['Load failed', 'Failed to fetch', 'NetworkError when attempting to fetch resource']
+			const networkErrorMessages = [
+				'Load failed',
+				'Failed to fetch',
+				'NetworkError when attempting to fetch resource',
+				'The user aborted a request.',
+			]
 			if (networkErrorMessages.some((networkErrorMessage) => networkError?.message?.includes(networkErrorMessage))) {
 				networkError.message = 'Unable to connect to server'
 			}

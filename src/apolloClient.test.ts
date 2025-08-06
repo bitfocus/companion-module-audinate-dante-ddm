@@ -188,7 +188,7 @@ describe('getApolloClient', () => {
 		// await vi.advanceTimersByTimeAsync(4000)
 
 		await expect(queryPromise).rejects.to.satisfy((error: any) => {
-			expect(error.networkError?.message).toBe('The user aborted a request.')
+			expect(error.networkError?.message).toBe('Unable to connect to server')
 			return true
 		})
 
