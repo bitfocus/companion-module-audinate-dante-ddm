@@ -147,7 +147,8 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 
 				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } = subscriptionOptions || {}
 
-				console.log(
+				self.log(
+					'info',
 					`subscribing channel ${rxChannelIndex} on device ${rxDeviceId} to channel ${txChannelName} on device ${txDeviceName}`,
 				)
 
@@ -296,7 +297,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 				if (rxSelector) {
 					if (rx) {
 						self.variables[rxSelector.toString()] = rx.toString()
-						console.log(`set variable ${rxSelector.toString()} to ${rx.toString()}`)
+						self.log('info', `set variable ${rxSelector.toString()} to ${rx.toString()}`)
 						setVariableValues(self.variables)
 						checkFeedbacks()
 					} else {

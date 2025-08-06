@@ -48,7 +48,6 @@ export async function getDomain(self: AudinateDanteModule): Promise<DomainQuery[
 			variables: { domainIDInput: domainId },
 		})
 
-		self.updateStatus(InstanceStatus.Ok, 'Successfully polled domain')
 		return result.data.domain
 	} catch (e) {
 		if (e instanceof Error) {

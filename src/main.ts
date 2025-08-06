@@ -61,10 +61,10 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			return
 		}
 
-		console.log(`Creating ApolloClient`)
+		this.log('info', `Creating ApolloClient`)
 		this.apolloClient = getApolloClient(this, this.config.apihost, this.config.apikey)
 
-		console.log(`Getting list of available Domains`)
+		this.log('info', `Getting list of available Domains`)
 		this.domains = await getDomains(this)
 
 		if (!this.domains) {
@@ -78,7 +78,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			return
 		}
 
-		console.log(`Setting up domain update polling...`)
+		this.log('info', `Setting up domain update polling...`)
 		// Do it once initially, then poll thereafter
 		await this.pollDomainAndUpdateFeedbacks()
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -86,7 +86,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			await this.pollDomainAndUpdateFeedbacks()
 		}, 2000)
 
-		console.log(`Setting up companion components...`)
+		this.log('info', `Setting up companion components...`)
 		this.setVariableDefinitions(generateVariables())
 		this.setFeedbackDefinitions(generateFeedbacks(this))
 		this.setActionDefinitions(generateActions(this))
@@ -101,7 +101,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			return
 		}
 
-		console.log(`Getting specified Domain (${this.config.domainID})`)
+		this.log('debug', `Getting specified Domain (${this.config.domainID})`)
 
 		this.domain = await getDomain(this)
 
@@ -111,6 +111,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		}
 
 		this.domain = await getDomain(this)
+		this.updateStatus(InstanceStatus.Ok, 'Successfully polled domain')
 		this.checkFeedbacks()
 	}
 
@@ -121,8 +122,8 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	}
 
 	async configUpdated(config: ConfigType): Promise<void> {
-		console.log(`Configuration updated`)
-		console.log({ ...config, apikey: '**********' })
+		this.log('info', `Configuration updated`)
+		this.log('debug', JSON.stringify({ ...config, apikey: '**********' }, null, 2))
 		await this.init(config)
 	}
 

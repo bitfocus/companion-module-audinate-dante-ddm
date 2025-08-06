@@ -51,7 +51,6 @@ export async function setDeviceSubscriptions(
 	} catch (e) {
 		if (e instanceof Error) {
 			self.log('error', `setDeviceSubscriptions for ${subscription.rxDeviceId}: ${e.message}`)
-			self.log('debug', JSON.stringify(e, null, 2))
 		}
 		return
 	}
@@ -87,7 +86,6 @@ export async function setMultipleChannelDeviceSubscriptions(
 	} catch (e) {
 		if (e instanceof Error) {
 			self.log('error', `setMultipleChannelDeviceSubscriptions for ${subscription.deviceId}: ${e.message}`)
-			self.log('debug', JSON.stringify(e, null, 2))
 		}
 		return
 	}

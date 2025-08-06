@@ -72,7 +72,7 @@ export function getApolloClient(
 
 		if (networkError) {
 			self.log('error', `[Network error]: ${networkError.message}`)
-			console.log(`[Network error]: ${JSON.stringify(networkError, undefined, 2)}`)
+			self.log('debug', `[Network error]: ${JSON.stringify(networkError, null, 2)}`)
 
 			// Aggregate some common types of network errors into a more user friendly message
 			const networkErrorMessages = [
