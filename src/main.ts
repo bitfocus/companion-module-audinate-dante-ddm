@@ -135,7 +135,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				id: 'apihost',
 				type: 'textinput',
 				label: 'API Host URL',
-				default: 'https://<instance>.beta.dante.cloud:4000/graphql',
+				default: 'https://api.director.dante.cloud:443/graphql',
 				width: 8,
 				regex: RegexURL,
 			},
@@ -176,7 +176,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				type: 'checkbox',
 				label: 'Disable certificate validation',
 				width: 8,
-				tooltip: 'For http api endpoints, setting this value has no affect',
+				tooltip: 'For HTTP endpoints, setting this value has no affect',
 				default: false,
 			},
 			{
