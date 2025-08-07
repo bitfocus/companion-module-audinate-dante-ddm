@@ -53,7 +53,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 				{
 					feedbackId: 'isSubscribed',
 					options: {
-						useSelector: false,
+						useSelector: true,
 						rxSelector: 'rx-selector-1',
 					},
 					style: {
@@ -63,7 +63,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 				{
 					feedbackId: 'isSubscribedAndHealthy',
 					options: {
-						useSelector: false,
+						useSelector: true,
 						rxSelector: 'rx-selector-1',
 					},
 					style: {
@@ -84,7 +84,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 						{
 							actionId: 'subscribeChannel',
 							options: {
-								useSelector: false,
+								useSelector: true,
 								rxSelector: 'rx-selector-1',
 							},
 						},
@@ -100,7 +100,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 				{
 					feedbackId: 'isSelected',
 					options: {
-						useSelector: false,
+						useSelector: true,
 						rxSelector: 'rx-selector-1',
 					},
 					style: {
@@ -121,7 +121,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 						{
 							actionId: 'setDestinationChannel',
 							options: {
-								useSelector: false,
+								useSelector: true,
 								rxSelector: 'rx-selector-1',
 							},
 						},

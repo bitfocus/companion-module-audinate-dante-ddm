@@ -5,6 +5,7 @@ import {
 	InstanceStatus,
 	SomeCompanionConfigField,
 	CompanionVariableValues,
+	DropdownChoice,
 } from '@companion-module/base'
 
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
@@ -18,9 +19,10 @@ import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql.js'
 import { ConfigType } from './config.js'
 import UpgradeScripts from './upgrades.js'
 import generateActions from './actions.js'
-import generateFeedbacks from './feedbacks.js'
+import generateFeedbacks from './feedbacks/feedbacks.js'
 import { generatePresets } from './presets.js'
-import { generateVariables } from './variables.js'
+import { generateVariables, getSelectorsFromVariablesForDropdown } from './variables.js'
+import { getDropdownChoicesOfDomains } from './options.js'
 
 export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
@@ -32,12 +34,15 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 	pollDomainAndUpdateFeedbacksInterval?: NodeJS.Timeout
 
+	selectorChoices: DropdownChoice[]
+
 	constructor(internal: unknown) {
 		super(internal)
 		this.config = <ConfigType>{}
 		this.variables = <CompanionVariableValues>{}
 		this.domains = <DomainsQuery['domains']>[]
 		this.domain = <DomainQuery['domain']>{}
+		this.selectorChoices = getSelectorsFromVariablesForDropdown()
 	}
 
 	async init(config: ConfigType): Promise<void> {
@@ -159,18 +164,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				// 	return false
 				// },
 				default: 'default',
-				choices: [
-					{ id: 'default', label: 'None' },
-					...(this.domains?.map((d) => {
-						if (d && d.id && d.name) {
-							return {
-								id: d.id,
-								label: d.name,
-							}
-						}
-						return { id: '', label: '' }
-					}) ?? []),
-				],
+				choices: getDropdownChoicesOfDomains(this.domains),
 			},
 			{
 				id: 'disableCertificateValidation',

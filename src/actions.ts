@@ -1,85 +1,19 @@
-import { CompanionActionDefinitions, SomeCompanionActionInputField } from '@companion-module/base'
+import { CompanionActionDefinitions } from '@companion-module/base'
 import { setDeviceSubscriptions, setMultipleChannelDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
 import { AudinateDanteModule } from './main.js'
-import { parseSubscriptionInfoFromOptions, parseSubscriptionVectorInfoFromOptions } from './options.js'
-import { RxChannel } from './graphql-codegen/graphql.js'
+import {
+	buildListOfDropdownsForRxChannelSubscriptions,
+	getDropdownChoicesOfDevices,
+	getDropdownChoicesOfRxChannels,
+	getDropdownChoicesOfTxChannels,
+	parseSubscriptionInfoFromOptions,
+	parseSubscriptionVectorInfoFromOptions,
+} from './options.js'
 
 export function generateActions(self: AudinateDanteModule): CompanionActionDefinitions {
 	// Bind methods to `self` to prevent `this` scoping issues, satisfying the unbound-method lint rule.
 	const setVariableValues = self.setVariableValues.bind(self)
 	const checkFeedbacks = self.checkFeedbacks.bind(self)
-
-	const availableRxChannels = self.domain?.devices?.flatMap((d) => {
-		return d?.rxChannels?.map((rxChannel) => ({
-			id: `${rxChannel?.index}@${d.id}`,
-			label: `${rxChannel?.name}@${d.name}`,
-		}))
-	})
-
-	const variableSelector = [1, 2, 3, 4].map((s) => ({
-		id: `rx-selector-${s}`,
-		label: `Selector #${s}`,
-	}))
-
-	const buildSubscriptionDropdown = (rxChannel: RxChannel): SomeCompanionActionInputField | undefined => {
-		if (!rxChannel) {
-			return undefined
-		}
-		return <SomeCompanionActionInputField>{
-			id: `rxDeviceChannel-${rxChannel.id}`,
-			type: 'dropdown',
-			label: `${rxChannel.index}: ${rxChannel.name}`,
-			default: 'ignore',
-			choices: [
-				{
-					id: 'clear',
-					label: 'Clear',
-				},
-				{
-					id: 'ignore',
-					label: 'Ignore',
-				},
-				...(self.domain?.devices
-					?.flatMap((d) => {
-						return d?.txChannels?.map((txChannel) => {
-							if (txChannel && d) {
-								return {
-									id: `${txChannel.name}@${d.name}`,
-									label: `${txChannel.name}@${d.name}`,
-								}
-							}
-							return null
-						})
-					})
-					.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? []),
-			],
-		}
-	}
-
-	const optionsGenerator = (): SomeCompanionActionInputField[] => {
-		return (
-			self.domain?.devices
-				?.flatMap((d) => {
-					if (!d || !d.rxChannels) {
-						return undefined
-					}
-					return d.rxChannels.map((rxChannel) => {
-						if (!rxChannel) {
-							return undefined
-						}
-						const deviceId = d.id
-						return <SomeCompanionActionInputField>{
-							...buildSubscriptionDropdown(rxChannel),
-							isVisible: (o, data) => {
-								return o['rxDevice']?.valueOf() === data.deviceId
-							},
-							isVisibleData: { deviceId },
-						}
-					})
-				})
-				.filter((device) => device !== undefined) ?? []
-		)
-	}
 
 	return {
 		subscribeChannel: {
@@ -90,7 +24,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'dropdown',
 					label: 'Rx Channel@Device',
 					default: 'Select a receive channel',
-					choices: availableRxChannels?.filter((channel) => channel !== undefined) ?? [],
+					choices: getDropdownChoicesOfRxChannels(self.domain),
 					allowCustom: true,
 					tooltip: 'The receiving channel to set the subscription on',
 					isVisible: (o) => {
@@ -102,7 +36,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'dropdown',
 					label: 'Rx Selector',
 					default: 'rx-selector-1',
-					choices: variableSelector,
+					choices: self.selectorChoices,
 					tooltip: 'Use in combination with "set destination" actions',
 					isVisible: (o) => {
 						return o['useSelector']?.valueOf() === true
@@ -120,20 +54,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'dropdown',
 					label: 'Tx Channel@Device',
 					default: 'Select a transmit channel',
-					choices:
-						self.domain?.devices
-							?.flatMap((d) => {
-								return d?.txChannels?.map((txChannel) => {
-									if (txChannel && d) {
-										return {
-											id: `${txChannel.name}@${d.name}`,
-											label: `${txChannel.name}@${d.name}`,
-										}
-									}
-									return undefined
-								})
-							})
-							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
+					choices: getDropdownChoicesOfTxChannels(self.domain),
 					allowCustom: true,
 					tooltip: 'The transmitting device to subscribe to',
 				},
@@ -173,18 +94,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'dropdown',
 					label: 'Rx Device',
 					default: ``,
-					choices:
-						self.domain?.devices
-							?.map((d) => {
-								if (d?.name && d.id) {
-									return {
-										id: d.id,
-										label: d.name,
-									}
-								}
-								return undefined
-							})
-							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
+					choices: getDropdownChoicesOfDevices(self.domain),
 					allowCustom: true,
 					tooltip: 'The receiving device to set the subscriptions on',
 				},
@@ -195,7 +105,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'static-text',
 					value: '',
 				},
-				...optionsGenerator(),
+				...buildListOfDropdownsForRxChannelSubscriptions(self.domain),
 			],
 			callback: async (action) => {
 				const subscriptionOptions = parseSubscriptionVectorInfoFromOptions(action.options)
@@ -271,7 +181,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'dropdown',
 					label: 'Rx Selector',
 					default: 'rx-selector-1',
-					choices: variableSelector,
+					choices: self.selectorChoices,
 					tooltip: 'The selector to set',
 				},
 				{
@@ -279,15 +189,7 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					type: 'dropdown',
 					label: 'Rx Channel@Device',
 					default: 'Select a receive channel',
-					choices:
-						self.domain?.devices
-							?.flatMap((d) => {
-								return d?.rxChannels?.map((rxChannel) => ({
-									id: `${rxChannel?.index}@${d.id}`,
-									label: `${rxChannel?.name}@${d.name}`,
-								}))
-							})
-							.filter((channel): channel is { id: string; label: string } => channel !== undefined) ?? [],
+					choices: getDropdownChoicesOfRxChannels(self.domain),
 					allowCustom: true,
 					tooltip: 'The receiving channel to set the subscription on',
 				},

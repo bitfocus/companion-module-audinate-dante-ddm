@@ -11,10 +11,28 @@ vi.mock('./dante-api/setDeviceSubscriptions.js', () => ({
 	setMultipleChannelDeviceSubscriptions: vi.fn(),
 }))
 
-vi.mock('./options.js', () => ({
-	parseSubscriptionInfoFromOptions: vi.fn(),
-	parseSubscriptionVectorInfoFromOptions: vi.fn(),
-}))
+vi.mock('./options.js', async () => {
+	const actual = await vi.importActual('./options.js')
+	return {
+		...actual,
+		parseSubscriptionInfoFromOptions: vi.fn(),
+		parseSubscriptionVectorInfoFromOptions: vi.fn(),
+		getDropdownChoicesOfDevices: vi.fn().mockReturnValue([
+			{ id: 'device-1-id', label: 'Device One' },
+			{ id: 'device-2-id', label: 'Device Two' },
+		]),
+		getDropdownChoicesOfRxChannels: vi.fn().mockReturnValue([
+			{ id: '1@device-1-id', label: 'RX 1@Device One' },
+			{ id: '2@device-1-id', label: 'RX 2@Device One' },
+			{ id: '1@device-2-id', label: 'RX 1@Device Two' },
+		]),
+		getDropdownChoicesOfTxChannels: vi.fn().mockReturnValue([
+			{ id: 'TX 1@Device One', label: 'TX 1@Device One' },
+			{ id: 'TX 2@Device One', label: 'TX 2@Device One' },
+			{ id: 'TX 1@Device Two', label: 'TX 1@Device Two' },
+		]),
+	}
+})
 
 const createMockSelf = (): AudinateDanteModule =>
 	({
