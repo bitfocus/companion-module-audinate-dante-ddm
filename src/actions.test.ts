@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, assert } from 'vitest'
 import { generateActions } from './actions.js'
 import { AudinateDanteModule } from './main.js' // Assuming this is the type location
-import { setDeviceSubscriptions, setMultipleChannelDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
+import { setDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
 import { parseSubscriptionInfoFromOptions, parseSubscriptionVectorInfoFromOptions } from './options.js'
 import { CompanionActionDefinitions } from '@companion-module/base'
 
@@ -123,10 +123,14 @@ describe('generateActions', () => {
 
 		it('callback should call setDeviceSubscriptions with parsed options', async () => {
 			const mockOptions = {
-				rxChannelIndex: 1,
 				rxDeviceId: 'device-1-id',
-				txChannelName: 'TX 1',
-				txDeviceName: 'Device Two',
+				subscriptions: [
+					{
+						rxChannelIndex: 1,
+						subscribedDevice: 'Device Two',
+						subscribedChannel: 'TX 1',
+					},
+				],
 			}
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(mockOptions)
 			vi.mocked(setDeviceSubscriptions).mockResolvedValue({ data: {} })
@@ -171,16 +175,16 @@ describe('generateActions', () => {
 
 		it('callback should call setMultipleChannelDeviceSubscriptions with parsed options', async () => {
 			const mockVectorOptions = {
-				deviceId: 'device-1-id',
+				rxDeviceId: 'device-1-id',
 				subscriptions: [{ rxChannelIndex: 1, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' }],
 			}
 			vi.mocked(parseSubscriptionVectorInfoFromOptions).mockReturnValue(mockVectorOptions)
-			vi.mocked(setMultipleChannelDeviceSubscriptions).mockResolvedValue({ data: {} })
+			vi.mocked(setDeviceSubscriptions).mockResolvedValue({ data: {} })
 
 			await actions.subscribeMultiChannel!.callback({ options: {} } as any, {} as any)
 
 			expect(parseSubscriptionVectorInfoFromOptions).toHaveBeenCalled()
-			expect(setMultipleChannelDeviceSubscriptions).toHaveBeenCalledWith(self, mockVectorOptions)
+			expect(setDeviceSubscriptions).toHaveBeenCalledWith(self, mockVectorOptions)
 		})
 
 		it('learn function should return updated options based on device state', () => {

@@ -37,12 +37,12 @@ export function checkSubscriptionHealth(
 	options: CompanionOptionValues,
 	checkHealth: boolean,
 ): boolean {
-	const { deviceId, subscriptions } = parseSubscriptionVectorInfoFromOptions(options) || {}
-	if (!deviceId || !subscriptions) {
+	const { rxDeviceId, subscriptions } = parseSubscriptionVectorInfoFromOptions(options) || {}
+	if (!rxDeviceId || !subscriptions) {
 		return false
 	}
 
-	const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === deviceId)
+	const currentRxDevice = self.domain?.devices?.find((rxDevice) => rxDevice?.id === rxDeviceId)
 	if (!currentRxDevice?.rxChannels || currentRxDevice?.rxChannels.length === 0) {
 		return false
 	}

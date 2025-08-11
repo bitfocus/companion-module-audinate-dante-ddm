@@ -1,16 +1,9 @@
-import { CompanionOptionValues, DropdownChoice, SomeCompanionFeedbackInputField } from '@companion-module/base'
+import { CompanionInputFieldDropdown, CompanionOptionValues, DropdownChoice } from '@companion-module/base'
 import { AudinateDanteModule } from './main.js'
 import { DomainQuery, DomainsQuery, RxChannel } from './graphql-codegen/graphql.js'
 
-export interface ChannelSubscription {
-	rxChannelIndex: number
+export interface DanteSubscription {
 	rxDeviceId: string
-	txChannelName: string
-	txDeviceName: string
-}
-
-export interface MultipleChannelSubscription {
-	deviceId: string
 	subscriptions: SubscribedDevice[]
 }
 
@@ -116,7 +109,7 @@ export function getDropdownChoicesOfRxChannels(domain: DomainQuery['domain']): D
 export function buildRxChannelSubscriptionDropdown(
 	domain: DomainQuery['domain'],
 	rxChannel: RxChannel,
-): SomeCompanionFeedbackInputField | undefined {
+): CompanionInputFieldDropdown | undefined {
 	if (!rxChannel) {
 		return undefined
 	}
@@ -144,7 +137,7 @@ export function buildRxChannelSubscriptionDropdown(
  */
 export function buildListOfDropdownsForRxChannelSubscriptions(
 	domain: DomainQuery['domain'],
-): SomeCompanionFeedbackInputField[] {
+): CompanionInputFieldDropdown[] {
 	return (
 		domain?.devices
 			?.flatMap((d) => {
@@ -157,7 +150,7 @@ export function buildListOfDropdownsForRxChannelSubscriptions(
 						return undefined
 					}
 					const deviceId = d.id
-					return <SomeCompanionFeedbackInputField>{
+					return <CompanionInputFieldDropdown>{
 						...buildRxChannelSubscriptionDropdown(domain, rxChannel),
 						// This option should only be visible when its parent device is selected
 						isVisible: (o, data) => {
@@ -175,9 +168,7 @@ export function buildListOfDropdownsForRxChannelSubscriptions(
 // ------------------- Parsers --------------------
 // ------------------------------------------------
 
-export function parseSubscriptionVectorInfoFromOptions(
-	options: CompanionOptionValues,
-): MultipleChannelSubscription | null {
+export function parseSubscriptionVectorInfoFromOptions(options: CompanionOptionValues): DanteSubscription | null {
 	const { rxDevice } = options
 
 	if (!rxDevice || typeof rxDevice !== 'string') {
@@ -214,7 +205,7 @@ export function parseSubscriptionVectorInfoFromOptions(
 		.filter((channelSubscription) => channelSubscription !== null)
 
 	return {
-		deviceId: rxDevice,
+		rxDeviceId: rxDevice,
 		subscriptions,
 	}
 }
@@ -225,7 +216,7 @@ export function parseSubscriptionVectorInfoFromOptions(
 export function parseSubscriptionInfoFromOptions(
 	self: AudinateDanteModule,
 	options: CompanionOptionValues,
-): ChannelSubscription | null {
+): DanteSubscription | null {
 	let { rx, tx } = options
 	const { useSelector, rxSelector } = options
 
@@ -251,9 +242,13 @@ export function parseSubscriptionInfoFromOptions(
 	const rxChannelIndex = parseInt(rxChannelIndexStr, 10)
 
 	return {
-		rxChannelIndex,
 		rxDeviceId,
-		txChannelName,
-		txDeviceName,
+		subscriptions: [
+			{
+				rxChannelIndex,
+				subscribedDevice: txDeviceName,
+				subscribedChannel: txChannelName,
+			},
+		],
 	}
 }

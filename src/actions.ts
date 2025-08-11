@@ -1,5 +1,5 @@
 import { CompanionActionDefinitions } from '@companion-module/base'
-import { setDeviceSubscriptions, setMultipleChannelDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
+import { setDeviceSubscriptions } from './dante-api/setDeviceSubscriptions.js'
 import { AudinateDanteModule } from './main.js'
 import {
 	buildListOfDropdownsForRxChannelSubscriptions,
@@ -66,11 +66,10 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 					return
 				}
 
-				const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } = subscriptionOptions || {}
-
+				const subscription = subscriptionOptions.subscriptions[0]
 				self.log(
 					'info',
-					`subscribing channel ${rxChannelIndex} on device ${rxDeviceId} to channel ${txChannelName} on device ${txDeviceName}`,
+					`subscribing channel ${subscription.rxChannelIndex} on device ${subscriptionOptions.rxDeviceId} to channel ${subscription.subscribedChannel} on device ${subscription.subscribedDevice}`,
 				)
 
 				const result = await setDeviceSubscriptions(self, subscriptionOptions)
@@ -109,19 +108,22 @@ export function generateActions(self: AudinateDanteModule): CompanionActionDefin
 			],
 			callback: async (action) => {
 				const subscriptionOptions = parseSubscriptionVectorInfoFromOptions(action.options)
-
 				if (!subscriptionOptions) {
+					return
+				}
+
+				if (!subscriptionOptions.subscriptions) {
 					console.error(`subscription options not parsed, so not applying any subscription`)
 					return
 				}
 
-				for (const subscriptionObj of subscriptionOptions.subscriptions) {
+				for (const subscription of subscriptionOptions.subscriptions) {
 					self.log(
 						'debug',
-						`subscribing channel ${subscriptionObj.rxChannelIndex} on device ${subscriptionOptions.deviceId} to channel ${subscriptionObj.subscribedChannel} on device ${subscriptionObj.subscribedDevice}`,
+						`subscribing channel ${subscription.rxChannelIndex} on device ${subscriptionOptions.rxDeviceId} to channel ${subscription.subscribedChannel} on device ${subscription.subscribedDevice}`,
 					)
 				}
-				const result = await setMultipleChannelDeviceSubscriptions(self, subscriptionOptions)
+				const result = await setDeviceSubscriptions(self, subscriptionOptions)
 
 				if (!result) {
 					self.log('error', `subscribeMultiChannel failed`)

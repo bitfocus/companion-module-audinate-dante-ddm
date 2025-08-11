@@ -4,7 +4,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 	return {
 		subscribeMultiChannel: {
 			name: 'Subscribe Multiple Dante Channel',
-			category: 'Commands',
+			category: 'Buttons',
 			feedbacks: [
 				{
 					feedbackId: 'isSubscribedMultiChannel',
@@ -48,7 +48,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 		},
 		subscribeChannel: {
 			name: 'Subscribe Dante Channel',
-			category: 'Commands',
+			category: 'Buttons',
 			feedbacks: [
 				{
 					feedbackId: 'isSubscribed',
@@ -95,7 +95,7 @@ export function generatePresets(): CompanionPresetDefinitions {
 		},
 		setRxSelector: {
 			name: 'Set Rx Selector',
-			category: 'Commands',
+			category: 'Buttons',
 			feedbacks: [
 				{
 					feedbackId: 'isSelected',

@@ -169,10 +169,14 @@ describe('generateFeedbacks', () => {
 
 		it('callback should return true when channels are subscribed', async () => {
 			const mockOptions = {
-				rxChannelIndex: 1,
 				rxDeviceId: 'device-1-id',
-				txChannelName: 'TX 1',
-				txDeviceName: 'Device Two',
+				subscriptions: [
+					{
+						rxChannelIndex: 1,
+						subscribedChannel: 'TX 1',
+						subscribedDevice: 'Device Two',
+					},
+				],
 			}
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(mockOptions)
 			const result = await feedbacks.isSubscribed?.callback({ options: {} } as any, {} as any)
@@ -182,10 +186,14 @@ describe('generateFeedbacks', () => {
 
 		it('callback should return true when channels are not subscribed', async () => {
 			const mockOptions = {
-				rxChannelIndex: 2,
 				rxDeviceId: 'device-1-id',
-				txChannelName: 'TX 1',
-				txDeviceName: 'Device Two',
+				subscriptions: [
+					{
+						rxChannelIndex: 2,
+						subscribedChannel: 'TX 1',
+						subscribedDevice: 'Device Two',
+					},
+				],
 			}
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(mockOptions)
 			const result = await feedbacks.isSubscribed?.callback({ options: {} } as any, {} as any)
@@ -195,10 +203,14 @@ describe('generateFeedbacks', () => {
 
 		it('callback should return false when channels do not exist', async () => {
 			const mockOptions = {
-				rxChannelIndex: 30,
 				rxDeviceId: 'device-1-id',
-				txChannelName: 'TX 1',
-				txDeviceName: 'Device Two',
+				subscriptions: [
+					{
+						rxChannelIndex: 30,
+						subscribedChannel: 'TX 1',
+						subscribedDevice: 'Device Two',
+					},
+				],
 			}
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(mockOptions)
 			const result = await feedbacks.isSubscribed?.callback({ options: {} } as any, {} as any)
@@ -216,10 +228,14 @@ describe('generateFeedbacks', () => {
 
 		it('callback should return true when channels are subscribed and healthy', async () => {
 			const mockOptions = {
-				rxChannelIndex: 1,
 				rxDeviceId: 'device-1-id',
-				txChannelName: 'TX 1',
-				txDeviceName: 'Device Two',
+				subscriptions: [
+					{
+						rxChannelIndex: 1,
+						subscribedChannel: 'TX 1',
+						subscribedDevice: 'Device Two',
+					},
+				],
 			}
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(mockOptions)
 			const result = await feedbacks.isSubscribed?.callback({ options: {} } as any, {} as any)
@@ -229,10 +245,14 @@ describe('generateFeedbacks', () => {
 
 		it('callback should return true when channels are subscribed but unhealthy', async () => {
 			const mockOptions = {
-				rxChannelIndex: 2,
 				rxDeviceId: 'device-1-id',
-				txChannelName: 'TX 1',
-				txDeviceName: 'Device Two',
+				subscriptions: [
+					{
+						rxChannelIndex: 2,
+						subscribedChannel: 'TX 1',
+						subscribedDevice: 'Device Two',
+					},
+				],
 			}
 			vi.mocked(parseSubscriptionInfoFromOptions).mockReturnValue(mockOptions)
 			const result = await feedbacks.isSubscribed?.callback({ options: {} } as any, {} as any)
@@ -271,7 +291,7 @@ describe('generateFeedbacks', () => {
 
 		it('callback isSubscribedMultiChannel with parsed options returns false if subscriptions are not set', async () => {
 			const mockVectorOptions = {
-				deviceId: 'device-1-id',
+				rxDeviceId: 'device-1-id',
 				subscriptions: [
 					{ rxChannelIndex: 1, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' },
 					{ rxChannelIndex: 2, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' },
@@ -287,7 +307,7 @@ describe('generateFeedbacks', () => {
 
 		it('callback isSubscribedMultiChannel with parsed options returns true if subscriptions are not set', async () => {
 			const mockVectorOptions = {
-				deviceId: 'device-1-id',
+				rxDeviceId: 'device-1-id',
 				subscriptions: [
 					{ rxChannelIndex: 1, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' },
 					{ rxChannelIndex: 2, subscribedChannel: 'TX 2', subscribedDevice: 'Device Two' },
@@ -311,7 +331,7 @@ describe('generateFeedbacks', () => {
 
 		it('callback isSubscribedMultiChannelAndHealthy returns false if subscriptions are not healthy', async () => {
 			const mockVectorOptions = {
-				deviceId: 'device-1-id',
+				rxDeviceId: 'device-1-id',
 				subscriptions: [
 					{ rxChannelIndex: 1, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' },
 					{ rxChannelIndex: 2, subscribedChannel: 'TX 2', subscribedDevice: 'Device Two' },
@@ -327,7 +347,7 @@ describe('generateFeedbacks', () => {
 
 		it('callback isSubscribedMultiChannelAndHealthy returns true if subscriptions are not healthy', async () => {
 			const mockVectorOptions = {
-				deviceId: 'device-1-id',
+				rxDeviceId: 'device-1-id',
 				subscriptions: [
 					{ rxChannelIndex: 1, subscribedChannel: 'TX 1', subscribedDevice: 'Device Two' },
 					{ rxChannelIndex: 2, subscribedChannel: 'ignore', subscribedDevice: 'ignore' },

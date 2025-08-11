@@ -10,7 +10,7 @@ import {
 	parseSubscriptionVectorInfoFromOptions,
 	parseSubscriptionInfoFromOptions,
 } from './options.js'
-import { DomainQuery, DomainsQuery, RxChannel } from './graphql-codegen/graphql.js'
+import { Domain, DomainQuery, DomainsQuery, RxChannel } from './graphql-codegen/graphql.js'
 import { CompanionOptionValues } from '@companion-module/base'
 import { AudinateDanteModule } from './main.js'
 
@@ -107,10 +107,13 @@ describe('options.ts', () => {
 			])
 		})
 
-		// it('should handle a domain with no devices', () => {
-		// 	const choices = getDropdownChoicesOfDevices(mockDomain)
-		// 	expect(choices).toEqual([{ id: 'default', label: 'None' }])
-		// })
+		it('should handle a domain with no devices', () => {
+			const choices = getDropdownChoicesOfDevices(<Domain>{
+				...mockDomain,
+				devices: null,
+			})
+			expect(choices).toEqual([{ id: 'default', label: 'None' }])
+		})
 
 		it('should handle undefined input', () => {
 			const choices = getDropdownChoicesOfDevices(undefined)
@@ -129,10 +132,13 @@ describe('options.ts', () => {
 			])
 		})
 
-		// it('should return an empty array if there are no devices', () => {
-		// 	const choices = getDropdownChoicesOfTxChannels(mockDomain)
-		// 	expect(choices).toEqual([])
-		// })
+		it('should return an empty array if there are no devices', () => {
+			const choices = getDropdownChoicesOfTxChannels(<Domain>{
+				...mockDomain,
+				devices: null,
+			})
+			expect(choices).toEqual([])
+		})
 
 		it('should return an empty array for undefined input', () => {
 			const choices = getDropdownChoicesOfTxChannels(undefined)
@@ -150,10 +156,13 @@ describe('options.ts', () => {
 			])
 		})
 
-		// it('should return an empty array if there are no devices', () => {
-		// 	const choices = getDropdownChoicesOfRxChannels(mockDomain)
-		// 	expect(choices).toEqual([])
-		// })
+		it('should return an empty array if there are no devices', () => {
+			const choices = getDropdownChoicesOfRxChannels(<Domain>{
+				...mockDomain,
+				devices: null,
+			})
+			expect(choices).toEqual([])
+		})
 
 		it('should return an empty array for undefined input', () => {
 			const choices = getDropdownChoicesOfRxChannels(undefined)
@@ -170,17 +179,17 @@ describe('options.ts', () => {
 			expect(dropdown?.label).toBe('1: RX 1')
 		})
 
-		// it('should set default to "clear" for an unsubscribed channel', () => {
-		// 	const unsubscribedChannel: RxChannel = {
-		// 		id: 'd1-rx3',
-		// 		index: 3,
-		// 		name: 'RX 3',
-		// 		subscribedChannel: '',
-		// 		subscribedDevice: '',
-		// 	}
-		// 	const dropdown = buildRxChannelSubscriptionDropdown(mockDomain, unsubscribedChannel)
-		// 	expect(dropdown?.default).toBe('clear')
-		// })
+		it('should set default to "clear" for an unsubscribed channel', () => {
+			const unsubscribedChannel: RxChannel = {
+				id: 'd1-rx3',
+				index: 3,
+				name: 'RX 3',
+				subscribedChannel: '',
+				subscribedDevice: '',
+			}
+			const dropdown = buildRxChannelSubscriptionDropdown(mockDomain, unsubscribedChannel)
+			expect(dropdown?.default).toBe('clear')
+		})
 
 		it('should return undefined if the rxChannel is invalid', () => {
 			const dropdown = buildRxChannelSubscriptionDropdown(mockDomain, undefined as unknown as RxChannel)
@@ -208,25 +217,25 @@ describe('options.ts', () => {
 			expect(isVisibleFn({ rxDevice: 'device-2-id' }, { deviceId: 'device-1-id' })).toBe(false)
 		})
 
-		// it('should return an empty array for a domain with no devices', () => {
-		// 	const dropdowns = buildListOfDropdownsForRxChannelSubscriptions(<Domain>{})
-		// 	expect(dropdowns).toEqual([])
-		// })
+		it('should return an empty array for a domain with no devices', () => {
+			const dropdowns = buildListOfDropdownsForRxChannelSubscriptions(<Domain>{})
+			expect(dropdowns).toEqual([])
+		})
 	})
 
 	describe('parseSubscriptionVectorInfoFromOptions', () => {
 		it('should parse options into a MultipleChannelSubscription object', () => {
 			const options: CompanionOptionValues = {
 				rxDevice: 'device-1-id',
-				'rxDevicedevice-1-id:rxChannel1:1': 'TX 1@Device Two',
-				'rxDevicedevice-1-id:rxChannel2:2': 'clear',
-				'rxDevicedevice-1-id:rxChannel3:3': 'ignore',
+				'rxDevice:device-1-id:rxChannel1:1': 'TX 1@Device Two',
+				'rxDevice:device-1-id:rxChannel2:2': 'clear',
+				'rxDevice:device-1-id:rxChannel3:3': 'ignore',
 				'otherDevice:rxChannel1:1': 'someVal', // Should be ignored
 			}
 
 			const result = parseSubscriptionVectorInfoFromOptions(options)
 			expect(result).toEqual({
-				deviceId: 'device-1-id',
+				rxDeviceId: 'device-1-id',
 				subscriptions: [
 					{ rxChannelIndex: 1, subscribedDevice: 'Device Two', subscribedChannel: 'TX 1' },
 					{ rxChannelIndex: 2, subscribedDevice: '', subscribedChannel: '' },
@@ -242,7 +251,7 @@ describe('options.ts', () => {
 		it('should handle cases with no valid channel subscriptions', () => {
 			const options: CompanionOptionValues = {
 				rxDevice: 'device-1-id',
-				'rxDevicedevice-1-id:rxChannel1:1': 'ignore',
+				'rxDevice:device-1-id:rxChannel1:1': 'ignore',
 			}
 			const result = parseSubscriptionVectorInfoFromOptions(options)
 			expect(result?.subscriptions).toEqual([])
@@ -259,42 +268,56 @@ describe('options.ts', () => {
 			}
 			const result = parseSubscriptionInfoFromOptions(self, options)
 			expect(result).toEqual({
-				rxChannelIndex: 1,
 				rxDeviceId: 'device-rx-id',
-				txChannelName: 'Audio 1',
-				txDeviceName: 'device-tx-id',
+				subscriptions: [
+					{
+						rxChannelIndex: 1,
+						subscribedChannel: 'Audio 1',
+						subscribedDevice: 'device-tx-id',
+					},
+				],
 			})
 		})
 
-		// it('should handle unsubscribe when tx is missing', () => {
-		// 	const options: CompanionOptionValues = { rx: '2@device-rx-id' }
-		// 	const result = parseSubscriptionInfoFromOptions(self, options)
-		// 	expect(result).toEqual({
-		// 		rxChannelIndex: 2,
-		// 		rxDeviceId: 'device-rx-id',
-		// 		txChannelName: '',
-		// 		txDeviceName: undefined,
-		// 	})
-		// })
+		it('should handle unsubscribe when tx is missing', () => {
+			const options: CompanionOptionValues = { rx: '2@device-rx-id' }
+			const result = parseSubscriptionInfoFromOptions(self, options)
+			expect(result).toEqual({
+				rxDeviceId: 'device-rx-id',
+				subscriptions: [
+					{
+						rxChannelIndex: 2,
+						subscribedChannel: '',
+						subscribedDevice: '',
+					},
+				],
+			})
+		})
 
-		// it('should use selector when useSelector is true', () => {
-		// 	const options: CompanionOptionValues = {
-		// 		useSelector: true,
-		// 		rxSelector: 'variable-id',
-		// 		tx: 'Mic 2@Console',
-		// 	}
-		// 	const mockSelf = createMockSelf()
-		// 	(mockSelf.getVariableValue as vi.Mock).mockReturnValue('4@selected-device-id')
+		it('should use selector when useSelector is true', () => {
+			const options: CompanionOptionValues = {
+				useSelector: true,
+				rxSelector: 'variable-id',
+				tx: 'Mic 2@Console',
+			}
+			const self = createMockSelf()
+			const getVariableValueMock = vi.fn().mockReturnValue('4@selected-device-id')
+			self.getVariableValue = getVariableValueMock
 
-		// 	const result = parseSubscriptionInfoFromOptions(mockSelf, options)
-		// 	expect(mockSelf.getVariableValue).toHaveBeenCalledWith('variable-id')
-		// 	expect(result).toEqual({
-		// 		rxChannelIndex: 4,
-		// 		rxDeviceId: 'selected-device-id',
-		// 		txChannelName: 'Mic 2',
-		// 		txDeviceName: 'Console',
-		// 	})
-		// })
+			const result = parseSubscriptionInfoFromOptions(self, options)
+			// eslint-disable-next-line @typescript-eslint/unbound-method
+			expect(self.getVariableValue).toHaveBeenCalledWith('variable-id')
+			expect(result).toEqual({
+				rxDeviceId: 'selected-device-id',
+				subscriptions: [
+					{
+						rxChannelIndex: 4,
+						subscribedChannel: 'Mic 2',
+						subscribedDevice: 'Console',
+					},
+				],
+			})
+		})
 
 		it('should return null if useSelector is true but rxSelector is missing', () => {
 			const options: CompanionOptionValues = { useSelector: true, tx: 'Mic 2@Console' }

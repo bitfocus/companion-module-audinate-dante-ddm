@@ -63,10 +63,14 @@ export function getSubscriptionOptions(self: AudinateDanteModule): SomeCompanion
  * @returns True if the subscription status matches the criteria.
  */
 function checkSubscription(self: AudinateDanteModule, options: CompanionOptionValues, checkHealth: boolean): boolean {
-	const { rxChannelIndex, rxDeviceId, txChannelName, txDeviceName } =
-		parseSubscriptionInfoFromOptions(self, options) || {}
+	const { rxDeviceId, subscriptions } = parseSubscriptionInfoFromOptions(self, options) || {}
 
-	if (!rxDeviceId || !rxChannelIndex || !txDeviceName || !txChannelName) {
+	if (!subscriptions || !subscriptions[0]) {
+		return false
+	}
+	const { rxChannelIndex, subscribedDevice, subscribedChannel } = subscriptions[0]
+
+	if (!rxDeviceId || !rxChannelIndex || !subscribedDevice || !subscribedChannel) {
 		return false
 	}
 
@@ -78,7 +82,7 @@ function checkSubscription(self: AudinateDanteModule, options: CompanionOptionVa
 	}
 
 	const isCurrentlySubscribed =
-		currentRxChannel?.subscribedDevice === txDeviceName && currentRxChannel?.subscribedChannel === txChannelName
+		currentRxChannel?.subscribedDevice === subscribedDevice && currentRxChannel?.subscribedChannel === subscribedChannel
 
 	if (checkHealth) {
 		return isCurrentlySubscribed && currentRxChannel?.summary === RxChannelSummary.Connected
