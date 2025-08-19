@@ -173,7 +173,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				label: 'Rx Selector Count',
 				width: 8,
 				default: 1,
-				tooltip: 'Set the required number of Rx selectors',
+				tooltip: 'The number of independent sets of controls you require. One is sufficient for most use cases.',
 				choices: getRxSelectorsDropdown(100),
 			},
 			{

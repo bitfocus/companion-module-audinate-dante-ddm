@@ -20,7 +20,9 @@ This module is built and tested for Companion version 4.
 
 ## Selector
 
-When using the selector, it is expected that a row of buttons is set up to set the selector value (i.e., the destination) and another set of buttons to set the subscription value (i.e., the source)
+When using the selector, it is expected that a row of buttons is set up to set the selector value (i.e., the destination) and another set of buttons to set the subscription value (i.e., the source).
+
+In newer versions of the module, there's an option to change the number of selectors to support uses cases where more selectors are required.
 
 ## Connection
 
