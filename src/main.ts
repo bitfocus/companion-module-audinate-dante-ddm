@@ -22,7 +22,7 @@ import generateActions from './actions.js'
 import generateFeedbacks from './feedbacks/feedbacks.js'
 import { generatePresets } from './presets.js'
 import { generateVariables, getSelectorsFromVariablesForDropdown } from './variables.js'
-import { getDropdownChoicesOfDomains } from './options.js'
+import { getDropdownChoicesOfDomains, getRxSelectorsDropdown } from './options.js'
 
 export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
@@ -42,7 +42,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.variables = <CompanionVariableValues>{}
 		this.domains = <DomainsQuery['domains']>[]
 		this.domain = <DomainQuery['domain']>{}
-		this.selectorChoices = getSelectorsFromVariablesForDropdown()
+		this.selectorChoices = getSelectorsFromVariablesForDropdown(1)
 	}
 
 	async init(config: ConfigType): Promise<void> {
@@ -54,6 +54,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		clearInterval(this.pollDomainAndUpdateFeedbacksInterval)
 		delete this.pollDomainAndUpdateFeedbacksInterval
 
+		this.selectorChoices = getSelectorsFromVariablesForDropdown(this.config.rxSelectorCount)
 		this.variables = {}
 
 		if (!this.config.apihost) {
@@ -92,7 +93,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		}, 2000)
 
 		this.log('info', `Setting up companion components...`)
-		this.setVariableDefinitions(generateVariables())
+		this.setVariableDefinitions(generateVariables(this.config.rxSelectorCount))
 		this.setFeedbackDefinitions(generateFeedbacks(this))
 		this.setActionDefinitions(generateActions(this))
 		this.setPresetDefinitions(generatePresets())
@@ -165,6 +166,15 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 				// },
 				default: 'default',
 				choices: getDropdownChoicesOfDomains(this.domains),
+			},
+			{
+				id: 'rxSelectorCount',
+				type: 'dropdown',
+				label: 'Rx Selector Count',
+				width: 8,
+				default: 1,
+				tooltip: 'Set the required number of Rx selectors',
+				choices: getRxSelectorsDropdown(100),
 			},
 			{
 				id: 'disableCertificateValidation',

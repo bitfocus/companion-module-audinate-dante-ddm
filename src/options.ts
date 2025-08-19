@@ -33,6 +33,13 @@ export function getDropdownChoicesOfDomains(domains?: DomainsQuery['domains']): 
 	]
 }
 
+export function getRxSelectorsDropdown(n: number): DropdownChoice[] {
+	return Array.from({ length: n }, (_, i) => i + 1).map((s) => ({
+		id: s,
+		label: `${s}`,
+	}))
+}
+
 /**
  * @description Generates a list of all available devices in the domain
  * The list is formatted to be suitable to use in in Dropdown menu options

@@ -30,7 +30,7 @@ describe('generateVariables', () => {
 			},
 		]
 
-		const result = generateVariables()
+		const result = generateVariables(4)
 
 		// Use .toEqual() to compare the objects' values
 		expect(result).toEqual(expectedVariables)
@@ -45,6 +45,6 @@ describe('generateVariables', () => {
 		// This creates a snapshot file on the first run.
 		// On subsequent runs, it compares the output to the saved snapshot.
 		// This is very useful for testing large, static data structures.
-		expect(generateVariables()).toMatchSnapshot()
+		expect(generateVariables(4)).toMatchSnapshot()
 	})
 })
