@@ -1,6 +1,6 @@
 import { CompanionInputFieldDropdown, CompanionOptionValues, DropdownChoice } from '@companion-module/base'
 import { AudinateDanteModule } from './main.js'
-import { DomainQuery, DomainsQuery, RxChannel } from './graphql-codegen/graphql.js'
+import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql.js'
 
 export interface DanteSubscription {
 	rxDeviceId: string
@@ -58,7 +58,6 @@ export function getDropdownChoicesOfDevices(domain: DomainQuery['domain']): Drop
 				return null
 			})
 			.filter((c) => c !== null) ?? []
-
 	return [{ id: 'default', label: 'None' }, ...deviceChoices]
 }
 
@@ -107,44 +106,18 @@ export function getDropdownChoicesOfRxChannels(domain: DomainQuery['domain']): D
 }
 
 /**
- * @description Helper function to build the dropdown choices for a single Rx Channel
- * Results will be either:
- *  - clear
- *  - ignore
- *  - a subscription in the form `{txChannel}@{txDevice}`
- */
-export function buildRxChannelSubscriptionDropdown(
-	domain: DomainQuery['domain'],
-	rxChannel: RxChannel,
-): CompanionInputFieldDropdown | undefined {
-	if (!rxChannel) {
-		return undefined
-	}
-	const defaultOption =
-		rxChannel.subscribedChannel === '' && rxChannel.subscribedDevice === ''
-			? 'clear'
-			: `${rxChannel.subscribedChannel}@${rxChannel.subscribedDevice}`
-
-	return {
-		id: `rxDeviceChannel-${rxChannel.id}`,
-		type: 'dropdown',
-		label: `${rxChannel.index}: ${rxChannel.name}`,
-		default: defaultOption,
-		choices: [
-			{ id: 'clear', label: 'Clear Subscription' },
-			{ id: 'ignore', label: 'Ignore This Channel' },
-			...getDropdownChoicesOfTxChannels(domain),
-		],
-	}
-}
-
-/**
  * @description Helper function to generate an option for each Rx channel in the
  * device and show its subscription status
  */
 export function buildListOfDropdownsForRxChannelSubscriptions(
 	domain: DomainQuery['domain'],
 ): CompanionInputFieldDropdown[] {
+	const dropdownChoicesOfTxChannels = getDropdownChoicesOfTxChannels(domain)
+	const choices = [
+		{ id: 'clear', label: 'Clear Subscription' },
+		{ id: 'ignore', label: 'Ignore This Channel' },
+		...dropdownChoicesOfTxChannels,
+	]
 	return (
 		domain?.devices
 			?.flatMap((d) => {
@@ -157,9 +130,17 @@ export function buildListOfDropdownsForRxChannelSubscriptions(
 						return undefined
 					}
 					const deviceId = d.id
+					// const options = buildRxChannelSubscriptionDropdown(dropdownChoicesOfTxChannels, rxChannel)
+					const defaultOption =
+						rxChannel.subscribedChannel === '' && rxChannel.subscribedDevice === ''
+							? 'clear'
+							: `${rxChannel.subscribedChannel}@${rxChannel.subscribedDevice}`
 					return <CompanionInputFieldDropdown>{
-						...buildRxChannelSubscriptionDropdown(domain, rxChannel),
-						// This option should only be visible when its parent device is selected
+						id: `rxDeviceChannel-${rxChannel.id}`,
+						type: 'dropdown',
+						label: `${rxChannel.index}: ${rxChannel.name}`,
+						default: defaultOption,
+						choices,
 						isVisible: (o, data) => {
 							return o['rxDevice']?.valueOf() === data.deviceId
 						},

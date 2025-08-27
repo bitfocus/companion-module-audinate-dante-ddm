@@ -5,12 +5,11 @@ import {
 	getDropdownChoicesOfDevices,
 	getDropdownChoicesOfTxChannels,
 	getDropdownChoicesOfRxChannels,
-	buildRxChannelSubscriptionDropdown,
 	buildListOfDropdownsForRxChannelSubscriptions,
 	parseSubscriptionVectorInfoFromOptions,
 	parseSubscriptionInfoFromOptions,
 } from './options.js'
-import { Domain, DomainQuery, DomainsQuery, RxChannel } from './graphql-codegen/graphql.js'
+import { Domain, DomainQuery, DomainsQuery } from './graphql-codegen/graphql.js'
 import { CompanionOptionValues } from '@companion-module/base'
 import { AudinateDanteModule } from './main.js'
 
@@ -167,33 +166,6 @@ describe('options.ts', () => {
 		it('should return an empty array for undefined input', () => {
 			const choices = getDropdownChoicesOfRxChannels(undefined)
 			expect(choices).toEqual([])
-		})
-	})
-
-	describe('buildRxChannelSubscriptionDropdown', () => {
-		it('should build a dropdown for a subscribed channel', () => {
-			const rxChannel = mockDomain?.devices?.[0]?.rxChannels?.[0] as RxChannel
-			const dropdown = buildRxChannelSubscriptionDropdown(mockDomain, rxChannel)
-			expect(dropdown).toBeDefined()
-			expect(dropdown?.id).toBe('rxDeviceChannel-d1-rx1')
-			expect(dropdown?.label).toBe('1: RX 1')
-		})
-
-		it('should set default to "clear" for an unsubscribed channel', () => {
-			const unsubscribedChannel: RxChannel = {
-				id: 'd1-rx3',
-				index: 3,
-				name: 'RX 3',
-				subscribedChannel: '',
-				subscribedDevice: '',
-			}
-			const dropdown = buildRxChannelSubscriptionDropdown(mockDomain, unsubscribedChannel)
-			expect(dropdown?.default).toBe('clear')
-		})
-
-		it('should return undefined if the rxChannel is invalid', () => {
-			const dropdown = buildRxChannelSubscriptionDropdown(mockDomain, undefined as unknown as RxChannel)
-			expect(dropdown).toBeUndefined()
 		})
 	})
 

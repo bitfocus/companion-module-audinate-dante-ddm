@@ -24,6 +24,8 @@ import { generatePresets } from './presets.js'
 import { generateVariables, getSelectorsFromVariablesForDropdown } from './variables.js'
 import { getDropdownChoicesOfDomains, getRxSelectorsDropdown } from './options.js'
 
+const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	config: ConfigType
 	variables: CompanionVariableValues
@@ -32,10 +34,11 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	domain: DomainQuery['domain']
 	apolloClient?: ApolloClient<NormalizedCacheObject>
 
-	pollDomainAndUpdateFeedbacksInterval?: NodeJS.Timeout
-
 	selectorChoices: DropdownChoice[]
 
+	abort: AbortController
+	pollPromise?: Promise<void>
+	feedbacks: any
 	constructor(internal: unknown) {
 		super(internal)
 		this.config = <ConfigType>{}
@@ -43,6 +46,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		this.domains = <DomainsQuery['domains']>[]
 		this.domain = <DomainQuery['domain']>{}
 		this.selectorChoices = getSelectorsFromVariablesForDropdown(1)
+		this.abort = new AbortController()
 	}
 
 	async init(config: ConfigType): Promise<void> {
@@ -51,12 +55,15 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		delete this.domains
 		delete this.domain
 		delete this.apolloClient
-		clearInterval(this.pollDomainAndUpdateFeedbacksInterval)
-		delete this.pollDomainAndUpdateFeedbacksInterval
 
 		this.selectorChoices = getSelectorsFromVariablesForDropdown(this.config.rxSelectorCount)
 		this.variables = {}
-
+		if (this.pollPromise) {
+			this.log(`info`, `polling in action, terminating it`)
+			this.abort.abort(`init() fn called`)
+			await this.pollPromise
+			this.pollPromise = undefined
+		}
 		if (!this.config.apihost) {
 			this.updateStatus(InstanceStatus.ConnectionFailure, 'API host not set')
 			return
@@ -84,24 +91,36 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			return
 		}
 
-		this.log('info', `Setting up domain update polling...`)
-		// Do it once initially, then poll thereafter
-		await this.pollDomainAndUpdateFeedbacks()
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		this.pollDomainAndUpdateFeedbacksInterval = setInterval(async () => {
-			await this.pollDomainAndUpdateFeedbacks()
-		}, 2000)
+		await this.updateDomain()
 
-		this.log('info', `Setting up companion components...`)
-		this.setVariableDefinitions(generateVariables(this.config.rxSelectorCount))
-		this.setFeedbackDefinitions(generateFeedbacks(this))
-		this.setActionDefinitions(generateActions(this))
-		this.setPresetDefinitions(generatePresets())
+		this.updateStatus(InstanceStatus.Ok, 'Successfully polled domain')
 
-		this.updateStatus(InstanceStatus.Ok)
+		this.log('info', 'Setting module status to OK')
+
+		// IIFE to run the loop outside of the init() function which has a 10s timeout
+		setTimeout(() => {
+			this.log('info', `Setting up domain update polling...`)
+			this.setUpFeedbacks()
+			this.updateDefinitions()
+			this.pollPromise = this.poll()
+		}, 0)
 	}
 
-	async pollDomainAndUpdateFeedbacks(): Promise<void> {
+	private setUpFeedbacks() {
+		this.log('info', `Setting up feedback definitions...`)
+
+		console.time('setFeedbackDefinitions')
+		// setDefinitions() can hang with very large definitions
+		// specifically when it is stringified to send through the internal host-ipc
+		console.time('generateFeedbacks')
+		const feedbacks = generateFeedbacks(this)
+		this.feedbacks = feedbacks
+		console.timeEnd('generateFeedbacks')
+		this.setFeedbackDefinitions(this.feedbacks)
+		console.timeEnd('setFeedbackDefinitions')
+	}
+
+	async updateDomain(): Promise<void> {
 		if (!this.config.domainID || this.config.domainID == 'default') {
 			this.updateStatus(InstanceStatus.BadConfig, 'Domain not selected. Please select a domain')
 			return
@@ -115,16 +134,70 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			this.updateStatus(InstanceStatus.Connecting, 'Domain not found. Please check the selected domain')
 			return
 		}
+	}
 
-		this.domain = await getDomain(this)
-		this.updateStatus(InstanceStatus.Ok, 'Successfully polled domain')
-		this.checkFeedbacks()
+	private updateDefinitions() {
+		/**
+		 * There are performance issues when calling into companion with very large
+		 * domains (>100 devices).
+		 * We are logging all the timing information here to be able to track down
+		 * where a regression might have occurred, particularly to isolate if it is
+		 * on our side or in the companion host.
+		 */
+		this.log('info', `Setting up companion components...`)
+
+		// -- variables --
+		this.log('info', `Setting up variable definitions...`)
+		console.time('generateVariables')
+		this.setVariableDefinitions(generateVariables(this.config.rxSelectorCount))
+		console.timeEnd('generateVariables')
+
+		// -- actions --
+		this.log('info', `Setting up action definitions...`)
+		console.time('generateActions')
+		const actions = generateActions(this)
+		console.timeEnd('generateActions')
+		console.time('setActionDefinitions')
+		this.setActionDefinitions(actions)
+		console.timeEnd('setActionDefinitions')
+
+		// -- presets --
+		this.log('info', `Setting up preset definitions...`)
+		console.time('generatePresets')
+		this.setPresetDefinitions(generatePresets())
+		console.timeEnd('generatePresets')
+	}
+
+	/**
+	 * poll runs a loop that monitors for changes to the domain, and then updates
+	 * various aspects of the module.
+	 */
+	async poll(): Promise<void> {
+		// Use a while-sleep loop to avoid starting parallel requests if the previous
+		// request has not yet completed.
+		// c.f. a setInterval, which can spawn many parallel requests
+		while (!this.abort.signal.aborted) {
+			await this.updateDomain()
+			this.log('debug', `Checking feedbacks...`)
+			console.time('checkFeedbacks')
+			this.checkFeedbacks()
+			console.timeEnd('checkFeedbacks')
+
+			await sleep(2000)
+		}
+		this.log(`warn`, `poll() terminated`)
 	}
 
 	// When module gets deleted
 	async destroy(): Promise<void> {
 		this.log('debug', 'Destroying the module instance')
-		clearInterval(this.pollDomainAndUpdateFeedbacksInterval)
+		this.abort.abort('AudinateDanteModule destroy() called')
+		await this.pollPromise
+
+		delete this.pollPromise
+		delete this.domains
+		delete this.domain
+		delete this.apolloClient
 	}
 
 	async configUpdated(config: ConfigType): Promise<void> {

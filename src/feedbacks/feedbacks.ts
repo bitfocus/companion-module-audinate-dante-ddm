@@ -7,12 +7,17 @@ import { isSubscribedMultiChannel, isSubscribedMultiChannelAndHealthy } from './
 import isSelected from './isSelected.js'
 
 function generateFeedbacks(self: AudinateDanteModule): CompanionFeedbackDefinitions {
+	const isSubscribedFeedback = isSubscribed(self)
+	const isSubscribedAndHealthyFeedback = isSubscribedAndHealthy(self)
+	const isSubscribedMultiChannelFeedback = isSubscribedMultiChannel(self)
+	const isSubscribedMultiChannelAndHealthyFeedback = isSubscribedMultiChannelAndHealthy(self)
+	const isSelectedFeedback = isSelected(self)
 	return {
-		isSubscribed: isSubscribed(self),
-		isSubscribedAndHealthy: isSubscribedAndHealthy(self),
-		isSubscribedMultiChannel: isSubscribedMultiChannel(self),
-		isSubscribedMultiChannelAndHealthy: isSubscribedMultiChannelAndHealthy(self),
-		isSelected: isSelected(self),
+		isSubscribed: isSubscribedFeedback,
+		isSubscribedAndHealthy: isSubscribedAndHealthyFeedback,
+		isSubscribedMultiChannel: isSubscribedMultiChannelFeedback,
+		isSubscribedMultiChannelAndHealthy: isSubscribedMultiChannelAndHealthyFeedback,
+		isSelected: isSelectedFeedback,
 	}
 }
 

@@ -44,7 +44,7 @@ export function getApolloClient(
 					return new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation })
 				}
 			},
-			signal: AbortSignal.timeout(2000),
+			signal: AbortSignal.timeout(4000),
 		})
 	}
 

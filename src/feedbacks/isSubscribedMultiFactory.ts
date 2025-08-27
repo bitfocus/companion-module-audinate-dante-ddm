@@ -114,6 +114,7 @@ export function getCurrentSubscriptions(
  * @returns A CompanionFeedbackDefinition object.
  */
 export function isSubscribedMultiChannel(self: AudinateDanteModule): CompanionFeedbackDefinition {
+	const options = getOptions(self)
 	return {
 		name: 'isSubscribedMultiChannel',
 		description:
@@ -122,7 +123,7 @@ export function isSubscribedMultiChannel(self: AudinateDanteModule): CompanionFe
 		defaultStyle: {
 			bgcolor: parseInt('BBBB00', 16), // Yellow
 		},
-		options: getOptions(self),
+		options,
 		callback: (feedback) => {
 			const checkHealth = false
 			return checkSubscriptionHealth(self, feedback.options, checkHealth)
@@ -140,6 +141,7 @@ export function isSubscribedMultiChannel(self: AudinateDanteModule): CompanionFe
  * @returns A CompanionFeedbackDefinition object.
  */
 export function isSubscribedMultiChannelAndHealthy(self: AudinateDanteModule): CompanionFeedbackDefinition {
+	const options = getOptions(self)
 	return {
 		name: 'isSubscribedMultiChannelAndHealthy',
 		description: 'Checks if the specified multi-channel subscriptions are in place and healthy (Connected).',
@@ -147,7 +149,7 @@ export function isSubscribedMultiChannelAndHealthy(self: AudinateDanteModule): C
 		defaultStyle: {
 			bgcolor: parseInt('00CC00', 16), // Green
 		},
-		options: getOptions(self),
+		options,
 		callback: (feedback) => {
 			const checkHealth = true
 			return checkSubscriptionHealth(self, feedback.options, checkHealth)
