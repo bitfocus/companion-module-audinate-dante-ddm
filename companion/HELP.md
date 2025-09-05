@@ -12,7 +12,8 @@ Each of these operations has a preset, which includes the appropriate feedback. 
 
 To clear subscriptions on an Rx channel, set the Tx device and Tx channel to empty strings.
 
-The new multi-channel subscription comes with a learn button for both the action and feedback to load fresh states from the device.
+The new multi-channel subscription comes with a learn button for both the action and feedback to load fresh states from the device. Note that this
+multi-channel subscription action renders drop-downs for low channel counts and and text field for high channel counts.
 
 ## Companion version support
 

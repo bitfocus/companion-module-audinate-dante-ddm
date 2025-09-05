@@ -1,6 +1,6 @@
 {
 	"name": "companion-module-audinate-dante-ddm",
-	"version": "1.2.3",
+	"version": "1.2.4",
 	"main": "dist/main.js",
 	"type": "module",
 	"scripts": {

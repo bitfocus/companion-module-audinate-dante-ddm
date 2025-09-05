@@ -1,5 +1,11 @@
 # Changelog
 
+## v.1.2.4 (2025-09-05)
+
+### Bugfixes
+
+- Improve performance in domains with high channel count devices
+
 ## v.1.2.3 (2025-08-06)
 
 ### Bugfixes
