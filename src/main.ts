@@ -38,7 +38,6 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 	abort: AbortController
 	pollPromise?: Promise<void>
-	feedbacks: any
 	constructor(internal: unknown) {
 		super(internal)
 		this.config = <ConfigType>{}
@@ -100,24 +99,9 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		// IIFE to run the loop outside of the init() function which has a 10s timeout
 		setTimeout(() => {
 			this.log('info', `Setting up domain update polling...`)
-			this.setUpFeedbacks()
 			this.updateDefinitions()
 			this.pollPromise = this.poll()
 		}, 0)
-	}
-
-	private setUpFeedbacks() {
-		this.log('info', `Setting up feedback definitions...`)
-
-		console.time('setFeedbackDefinitions')
-		// setDefinitions() can hang with very large definitions
-		// specifically when it is stringified to send through the internal host-ipc
-		console.time('generateFeedbacks')
-		const feedbacks = generateFeedbacks(this)
-		this.feedbacks = feedbacks
-		console.timeEnd('generateFeedbacks')
-		this.setFeedbackDefinitions(this.feedbacks)
-		console.timeEnd('setFeedbackDefinitions')
 	}
 
 	async updateDomain(): Promise<void> {
@@ -145,6 +129,18 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		 * on our side or in the companion host.
 		 */
 		this.log('info', `Setting up companion components...`)
+
+		// -- feedbacks --
+		this.log('info', `Setting up feedback definitions...`)
+
+		console.time('setFeedbackDefinitions')
+		// setDefinitions() can hang with very large definitions
+		// specifically when it is stringified to send through the internal host-ipc
+		console.time('generateFeedbacks')
+		const feedbacks = generateFeedbacks(this)
+		console.timeEnd('generateFeedbacks')
+		this.setFeedbackDefinitions(feedbacks)
+		console.timeEnd('setFeedbackDefinitions')
 
 		// -- variables --
 		this.log('info', `Setting up variable definitions...`)

@@ -1,4 +1,9 @@
-import { CompanionInputFieldDropdown, CompanionOptionValues, DropdownChoice } from '@companion-module/base'
+import {
+	CompanionInputFieldDropdown,
+	CompanionInputFieldTextInput,
+	CompanionOptionValues,
+	DropdownChoice,
+} from '@companion-module/base'
 import { AudinateDanteModule } from './main.js'
 import { DomainQuery, DomainsQuery } from './graphql-codegen/graphql.js'
 
@@ -111,7 +116,7 @@ export function getDropdownChoicesOfRxChannels(domain: DomainQuery['domain']): D
  */
 export function buildListOfDropdownsForRxChannelSubscriptions(
 	domain: DomainQuery['domain'],
-): CompanionInputFieldDropdown[] {
+): (CompanionInputFieldDropdown | CompanionInputFieldTextInput)[] {
 	const dropdownChoicesOfTxChannels = getDropdownChoicesOfTxChannels(domain)
 	const choices = [
 		{ id: 'clear', label: 'Clear Subscription' },
@@ -130,21 +135,34 @@ export function buildListOfDropdownsForRxChannelSubscriptions(
 						return undefined
 					}
 					const deviceId = d.id
-					// const options = buildRxChannelSubscriptionDropdown(dropdownChoicesOfTxChannels, rxChannel)
+
 					const defaultOption =
 						rxChannel.subscribedChannel === '' && rxChannel.subscribedDevice === ''
 							? 'clear'
 							: `${rxChannel.subscribedChannel}@${rxChannel.subscribedDevice}`
-					return <CompanionInputFieldDropdown>{
-						id: `rxDeviceChannel-${rxChannel.id}`,
-						type: 'dropdown',
-						label: `${rxChannel.index}: ${rxChannel.name}`,
-						default: defaultOption,
-						choices,
-						isVisible: (o, data) => {
-							return o['rxDevice']?.valueOf() === data.deviceId
-						},
-						isVisibleData: { deviceId },
+					if (choices.length < 700) {
+						return <CompanionInputFieldDropdown>{
+							id: `rxDeviceChannel-${rxChannel.id}`,
+							type: 'dropdown',
+							label: `${rxChannel.index}: ${rxChannel.name}`,
+							default: defaultOption,
+							choices,
+							isVisible: (o, data) => {
+								return o['rxDevice']?.valueOf() === data.deviceId
+							},
+							isVisibleData: { deviceId },
+						}
+					} else {
+						return <CompanionInputFieldTextInput>{
+							id: `rxDeviceChannel-${rxChannel.id}`,
+							type: 'textinput',
+							label: `${rxChannel.index}: ${rxChannel.name}`,
+							default: defaultOption,
+							isVisible: (o, data) => {
+								return o['rxDevice']?.valueOf() === data.deviceId
+							},
+							isVisibleData: { deviceId },
+						}
 					}
 				})
 			})
