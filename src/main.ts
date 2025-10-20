@@ -49,7 +49,11 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 	}
 
 	async init(config: ConfigType): Promise<void> {
-		this.config = config
+		// Ensure rxSelectorCount has a default value for any config that doesn't have it
+		this.config = {
+			...config,
+			rxSelectorCount: config.rxSelectorCount ?? 4,
+		}
 
 		delete this.domains
 		delete this.domain
