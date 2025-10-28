@@ -1,5 +1,12 @@
 # Changelog
 
+## v.1.2.5 (2025-10-28)
+
+### Bugfixes
+
+- Add upgrade scripts to reflect default values for rxSelector drop-downs in config panel.
+
+
 ## v.1.2.4 (2025-09-05)
 
 ### Bugfixes
