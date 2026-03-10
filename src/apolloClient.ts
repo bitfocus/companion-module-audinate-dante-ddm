@@ -15,6 +15,8 @@ import http from 'http'
 import https from 'https'
 import { AudinateDanteModule } from './main.js'
 
+const REQUEST_TIMEOUT_MS = 30000
+
 export function getApolloClient(
 	self: AudinateDanteModule,
 	uri: string,
@@ -44,7 +46,7 @@ export function getApolloClient(
 					return new https.Agent({ rejectUnauthorized: !self.config.disableCertificateValidation })
 				}
 			},
-			signal: AbortSignal.timeout(4000),
+			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
 		})
 	}
 
