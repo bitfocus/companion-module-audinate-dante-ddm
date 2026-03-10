@@ -171,28 +171,32 @@ describe('getApolloClient', () => {
 		expect(receivedHeaders.get('authorization')).toBe(token)
 	})
 
-	it('should throw a timeout error if the request takes longer than 2000ms', async () => {
-		mswServer.use(
-			http.post(`http://localhost/timeout`, async () => {
-				await delay(10000)
-				return HttpResponse.json(mockDomainsResponse)
-			}),
-		)
+	it(
+		'should throw a timeout error if the request takes longer than the timeout',
+		async () => {
+			mswServer.use(
+				http.post(`http://localhost/timeout`, async () => {
+					await delay(60000)
+					return HttpResponse.json(mockDomainsResponse)
+				}),
+			)
 
-		const client = getApolloClient(mockSelf as unknown as AudinateDanteModule, `http://localhost/timeout`)
+			const client = getApolloClient(mockSelf as unknown as AudinateDanteModule, `http://localhost/timeout`)
 
-		const queryPromise = client.query({ query: DOMAINS_QUERY })
+			const queryPromise = client.query({ query: DOMAINS_QUERY })
 
-		// Can't use fake timers, since the AbortSignal uses a low-level fetch which
-		//   vitest can't fake
-		// await vi.advanceTimersByTimeAsync(4000)
+			// Can't use fake timers, since the AbortSignal uses a low-level fetch which
+			//   vitest can't fake
+			// await vi.advanceTimersByTimeAsync(4000)
 
-		await expect(queryPromise).rejects.to.satisfy((error: any) => {
-			expect(error.networkError?.message).toBe('Unable to connect to server')
-			return true
-		})
+			await expect(queryPromise).rejects.to.satisfy((error: any) => {
+				expect(error.networkError?.message).toBe('Unable to connect to server')
+				return true
+			})
 
-		// The onError link should have been called.
-		expect(mockSelf.updateStatus).toHaveBeenCalledWith(InstanceStatus.ConnectionFailure, 'Network error')
-	})
+			// The onError link should have been called.
+			expect(mockSelf.updateStatus).toHaveBeenCalledWith(InstanceStatus.ConnectionFailure, 'Network error')
+		},
+		35000,
+	)
 })

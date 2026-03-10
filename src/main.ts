@@ -67,6 +67,7 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 			await this.pollPromise
 			this.pollPromise = undefined
 		}
+		this.abort = new AbortController()
 		if (!this.config.apihost) {
 			this.updateStatus(InstanceStatus.ConnectionFailure, 'API host not set')
 			return
@@ -116,12 +117,15 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 
 		this.log('debug', `Getting specified Domain (${this.config.domainID})`)
 
-		this.domain = await getDomain(this)
+		const domain = await getDomain(this)
 
-		if (!this.domain) {
-			this.updateStatus(InstanceStatus.Connecting, 'Domain not found. Please check the selected domain')
+		if (!domain) {
+			// getDomain already sets InstanceStatus.Disconnected on network/query errors,
+			// so only update the status if we're not already in an error state
 			return
 		}
+
+		this.domain = domain
 	}
 
 	private updateDefinitions() {
@@ -178,6 +182,11 @@ export class AudinateDanteModule extends InstanceBase<ConfigType> {
 		// c.f. a setInterval, which can spawn many parallel requests
 		while (!this.abort.signal.aborted) {
 			await this.updateDomain()
+
+			if (this.domain) {
+				this.updateStatus(InstanceStatus.Ok)
+			}
+
 			this.log('debug', `Checking feedbacks...`)
 			console.time('checkFeedbacks')
 			this.checkFeedbacks()

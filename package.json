@@ -13,7 +13,7 @@
 		"build": "rimraf dist && yarn build:main",
 		"build:main": "tsc -p tsconfig.build.json",
 		"build:watch": "tsc -p tsconfig.build.json --watch",
-		"build:module": "yarn run build && yarn install --production && ./build-module.sh",
+		"package": "yarn build && companion-module-build",
 		"lint": "eslint",
 		"test": "vitest"
 	},
