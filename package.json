@@ -27,7 +27,7 @@
 	},
 	"dependencies": {
 		"@apollo/client": "^3.10.4",
-		"@babel/core": "^7.24.5",
+		"@babel/core": "^7.29.6",
 		"@companion-module/base": "^1.12.1",
 		"@graphql-codegen/client-preset": "^4.2.6",
 		"@types/node": "^22.13.4",
